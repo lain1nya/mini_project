@@ -1,0 +1,5 @@
+fastapi[all]
+langchain-openai
+streamlit
+requests
+python-dotenv
