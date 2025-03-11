@@ -6,7 +6,9 @@ import re
 from openai import AzureOpenAI
 from pprint import pprint
 from dotenv import load_dotenv
-from chroma_db import get_collection
+from db import search_similar_remarks, add_remarks_to_faiss
+import numpy as np
+import faiss
 
 load_dotenv()
 
@@ -27,21 +29,21 @@ client = AzureOpenAI(
 # FastAPI 앱 생성
 app = FastAPI()
 
-collection = get_collection()
-
 # 요청 모델 정의
 class RemarkRequest(BaseModel):
     remark: str
 
 
-# ChromaDB에서 유사한 잔소리 검색하는 함수
+# FAISS 인덱스에서 유사한 잔소리 검색하는 함수
 def retrieve_remarks(query, top_k=1):
-    results = collection.query(query_texts=[query], n_results=top_k)
-
-    if results["documents"]:
-        retrieved_text = results["documents"][0][0]
-        metadata = results["metadatas"][0][0]
-        return retrieved_text, metadata["explanation"], metadata["price"]
+    # FAISS 인덱스를 사용하여 유사한 잔소리 검색
+    similar_results = search_similar_remarks(query, top_k)
+    
+    if similar_results and len(similar_results) > 0:
+        # 첫 번째 결과 사용
+        result = similar_results[0]
+        metadata = result["metadata"]
+        return metadata["remark"], metadata["explanation"], metadata["price"]
     else:
         return None, None, None
 
@@ -64,7 +66,7 @@ def generate_prompt(remark: str):
       → 가격: 8만 원
 
     먼저 각 기준을 분석한 후, 만원 단위로 최종 가격을 산출하세요.
-    최저 가격은 1만원, 최대 가격은 10만원입니다.
+    최저 가격은 1만원, 최대 가격은 15만원입니다.
 
     **예시:**
     ```json
@@ -108,19 +110,42 @@ def get_ai_response(prompt: str):
 
     return explanation, f"{price}만원"
 
+# TODO: 입력된 잔소리가 아닐 경우 잔소리 백터 디비에 전달하는 기준 다시 만들기
 @app.post("/get_price/")
 async def get_price(request: RemarkRequest):
+    print(f"입력된 잔소리: {request.remark}")
     retrieved_text, retrieved_explanation, retrieved_price = retrieve_remarks(request.remark)
-
     if retrieved_text:
         return {
             "remark": request.remark,
             "retrieved_remark": retrieved_text,
             "explanation" : retrieved_explanation,
-            "price": f"{retrieved_price}만원"
+            "price": f"{retrieved_price}만원",
+            "new": False,
         }
-    
-    prompt = generate_prompt(request.remark)
-    explanation, price = get_ai_response(prompt)
 
-    return {"remark": request.remark, "explanation" : explanation, "price": price}
+    prompt = generate_prompt(request.remark)
+    explanation, price_str = get_ai_response(prompt)
+    
+    # 가격에서 '만원' 제거하고 정수로 변환
+    price = int(price_str.replace('만원', ''))
+    
+    # 새로운 잔소리를 vector db에 추가
+    print("새로운 잔소리를 데이터베이스에 추가합니다.")
+    new_remarks = [{
+        "remark": request.remark,
+        "explanation": explanation,
+        "price": price
+    }]
+    try:
+        add_remarks_to_faiss(new_remarks)
+        print("데이터베이스 추가 완료")
+    except Exception as e:
+        print(f"데이터베이스 추가 중 오류 발생: {e}")
+
+    return {
+        "new": True,
+        "remark": request.remark,
+        "explanation": explanation,
+        "price": price_str
+    }

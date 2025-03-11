@@ -1,5 +1,12 @@
+pyarrow==10.0.1
 fastapi[all]
 langchain-openai
 streamlit
 requests
 python-dotenv
+openai
+uvicorn
+numpy
+faiss-cpu
+pyqtwebengine==5.15.7
+black>=22.3.0
