@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
+from models import RemarkRequest, FeedbackRequest, PriceSuggestionRequest, PriceAnalysisOutput
 import os
 import json
 import re
@@ -11,7 +11,14 @@ import numpy as np
 import faiss
 from datetime import datetime
 from fastapi.middleware.cors import CORSMiddleware
+from langchain_openai import AzureChatOpenAI
+from langchain.prompts import ChatPromptTemplate
+from langchain.chains import LLMChain
+from langchain_community.embeddings import AzureOpenAIEmbeddings
+from langchain.output_parsers import ResponseSchema, PydanticOutputParser
+from pydantic import BaseModel, Field
 
+# env 로드
 load_dotenv()
 
 AOAI_ENDPOINT=os.getenv("AOAI_ENDPOINT")
@@ -21,6 +28,16 @@ AOAI_DEPLOY_GPT4O_MINI=os.getenv("AOAI_DEPLOY_GPT4O_MINI")
 AOAI_DEPLOY_EMBED_3_LARGE=os.getenv("AOAI_DEPLOY_EMBED_3_LARGE")
 AOAI_DEPLOY_EMBED_3_SMALL=os.getenv("AOAI_DEPLOY_EMBED_3_SMALL")
 AOAI_DEPLOY_EMBED_ADA=os.getenv("AOAI_DEPLOY_EMBED_ADA")
+
+# Langchain 모델 설정
+llm = AzureChatOpenAI(
+    openai_api_version="2024-10-21",
+    azure_deployment=AOAI_DEPLOY_GPT4O_MINI,
+    azure_endpoint=AOAI_ENDPOINT,
+    api_key=AOAI_API_KEY
+)
+
+output_parser = PydanticOutputParser(pydantic_object=PriceAnalysisOutput)
 
 client = AzureOpenAI(
   azure_endpoint = AOAI_ENDPOINT, 
@@ -34,24 +51,12 @@ app = FastAPI()
 # CORS 미들웨어 추가
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 모든 origin 허용 (프로덕션에서는 특정 origin만 허용하는 것이 좋습니다)
+    allow_origins=["*"],  # 모든 origin 허용
     allow_credentials=True,
     allow_methods=["*"],  # 모든 HTTP 메소드 허용
     allow_headers=["*"],  # 모든 HTTP 헤더 허용
 )
 
-# 요청 모델 정의
-class RemarkRequest(BaseModel):
-    remark: str
-
-class FeedbackRequest(BaseModel):
-    remark: str
-    is_positive: bool
-
-class PriceSuggestionRequest(BaseModel):
-    remark: str
-    suggested_price: int
-    reason: str
 
 # FAISS 인덱스에서 유사한 잔소리 검색하는 함수
 def retrieve_remarks(query, top_k=1):
@@ -69,65 +74,69 @@ def retrieve_remarks(query, top_k=1):
 
 # CoT + Few-shot + 템플릿 적용
 def generate_prompt(remark: str):
-    return f"""
-    다음의 기준을 사용하여 '{remark}' 잔소리 가격을 측정하세요:
+    template = """
+    다음의 기준을 사용하여 '{remark}' 잔소리의 가격을 측정하세요.
+
+    # 평가 기준
     1. 반복 빈도 (1~10) - 자주 들을수록 높음
     2. 정신적 데미지 (1~10) - 듣기 싫을수록 높음
     3. 피할 수 있는 난이도 (1~10) - 회피 어려울수록 높음
     4. 대체 가능성 (1~10) - 영원히 사라지지 않을수록 높음
 
-    예시:
-    - "너 언제 결혼하니?"  
-      → 반복 빈도: 10, 정신적 데미지: 9, 피할 수 있는 난이도: 9, 대체 가능성: 10  
-      → 가격: 15만 원
-    - "공부 좀 해라."  
-      → 반복 빈도: 8, 정신적 데미지: 6, 피할 수 있는 난이도: 5, 대체 가능성: 7  
-      → 가격: 8만 원
+    # 참고 사항
+    - 최저 가격은 1만원, 최대 가격은 15만원입니다.
+    - 각 기준별로 점수와 이유를 상세히 설명해주세요.
+    - 최종 가격은 각 기준의 점수를 종합적으로 고려하여 결정합니다.
 
-    먼저 각 기준을 분석한 후, 만원 단위로 최종 가격을 산출하세요.
-    최저 가격은 1만원, 최대 가격은 15만원입니다.
+    # 예시 분석
+    잔소리: "너 언제 결혼하니?"
+    
+    사고 과정:
+    1. 결혼 관련 잔소리는 특히 명절이나 가족 모임에서 자주 발생
+    2. 개인의 선택과 상황을 고려하지 않는 전형적인 잔소리
+    3. 결혼은 매우 개인적인 문제라 정신적 부담이 큼
+    
+    분석:
+    - 반복 빈도: 10점 (명절, 가족 모임마다 반복되는 단골 잔소리)
+    - 정신적 데미지: 9점 (개인의 상황과 무관하게 사회적 압박을 주는 발언)
+    - 피할 수 있는 난이도: 9점 (가족 모임을 피하기 어려움)
+    - 대체 가능성: 10점 (결혼할 때까지 계속되는 영원한 잔소리)
+    
+    최종 설명: 결혼 관련 잔소리는 개인의 선택을 존중하지 않고 지속적인 정신적 압박을 주는 대표적인 잔소리입니다.
+    최종 가격: 15만원
 
-    **예시:**
-    ```json
-    {{
-        "explanation": "이 잔소리는 반복 빈도가 높고 정신적 데미지가 크므로 높은 가격을 매길 수 있습니다.",
-        "price": 7
-    }}
-    ```
+    이제 '{remark}' 잔소리에 대해 위 예시와 같은 형식으로 분석해주세요.
 
-    이제 '{remark}' 잔소리에 대한 설명과 가격을 위의 JSON 형식으로 반환해주세요.
+    {format_instructions}
     """
-
-def get_ai_response(prompt: str):
-    response = client.chat.completions.create(
-
-        model=AOAI_DEPLOY_GPT4O_MINI,
-        messages=[
-            {"role": "system", "content": "너는 명절 잔소리에 가격을 매기는 AI야."},
-            {"role": "user", "content": prompt}
-        ]
+    
+    prompt = ChatPromptTemplate.from_template(template)
+    return prompt.format_messages(
+        remark=remark,
+        format_instructions=output_parser.get_format_instructions()
     )
 
-    ai_response = response.choices[0].message.content
+def get_ai_response(prompt_messages):
     
-    json_match = re.search(r"\{.*\}", ai_response, re.DOTALL)  # `{}`로 감싸진 JSON 부분 찾기
-    if json_match:
-        json_text = json_match.group(0)  # JSON 문자열 추출
-    else:
-        print("⚠️ JSON이 올바르게 감지되지 않았습니다.")
-        return "AI 응답이 JSON 형식이 아닙니다.", "가격을 파싱할 수 없습니다."
-
-    # JSON 파싱
+    # 해석: 데이터가 흐르는 순서
+    # 프롬프트 -> LLM 응답 -> 응답 파싱
+    chain = prompt_messages | llm | output_parser
+    
+    print(f"prompt_messages: {prompt_messages}")
     try:
-        result = json.loads(json_text)
-        explanation = result.get("explanation", "설명이 없습니다.")
-        price = result.get("price", "가격 정보 없음")
-    except json.JSONDecodeError as e:
-        print(f"⚠️ JSON 파싱 오류: {e}")
-        explanation = "AI 응답이 JSON 형식이 아닙니다."
-        price = "가격을 파싱할 수 없습니다."
-
-    return explanation, f"{price}만원"
+        # invoke 메서드 사용
+        parsed_response = chain.invoke({}) # 프롬포트에 이미 모든 값이 포함되어 있음
+        # PriceAnalysisOutput 모델을 사용하여 응답 검증
+        analysis_output = PriceAnalysisOutput(
+            thinking_steps=parsed_response["thinking_steps"],
+            analysis=parsed_response["analysis"],
+            final_explanation=parsed_response["final_explanation"],
+            price=parsed_response["price"]
+        )
+        return analysis_output.final_explanation, f"{analysis_output.price}만원"
+    except Exception as e:
+        print(f"⚠️ 응답 파싱 오류: {e}")
+        return "AI 응답을 파싱할 수 없습니다.", "가격을 파싱할 수 없습니다."
 
 # TODO: 입력된 잔소리가 아닐 경우 잔소리 백터 디비에 전달하는 기준 다시 만들기
 @app.post("/get_price/")
@@ -169,8 +178,15 @@ async def get_price(request: RemarkRequest):
         "price": price_str
     }
 
-def generate_price_suggestion_prompt(base_explanation: str, positive_count: int, negative_count: int, original_price: int, suggested_price: int, reason: str) -> str:
-    return f"""
+def generate_price_suggestion_prompt(base_explanation: str, positive_count: int, negative_count: int, original_price: int, suggested_price: int, reason: str) -> ChatPromptTemplate:
+    # 설명 생성을 위한 출력 파서 스키마
+    class ExplanationResponse(BaseModel):
+        explanation: str = Field(description="잔소리에 대한 새로운 설명")
+        price: int = Field(description="피드백을 반영한 가격")
+
+    explanation_parser = PydanticOutputParser(pydantic_object=ExplanationResponse)
+    
+    template = """
     다음은 잔소리에 대한 기본 설명입니다:
     "{base_explanation}"
 
@@ -183,38 +199,37 @@ def generate_price_suggestion_prompt(base_explanation: str, positive_count: int,
     - 제안된 가격: {suggested_price}만원
     - 가격 제안 이유: {reason}
 
-    위 정보를 바탕으로 잔소리에 대한 새로운 설명을 생성해주세요.
-    기본 설명의 본질은 유지하면서, 사용자들의 피드백을 자연스럽게 반영해주세요.
-    설명은 한 문장으로 작성하고, 가격 제안이 적합한지 이유와 함께 얘기해주세요.
+    위 정보를 바탕으로 잔소리에 대한 새로운 설명과 가격을 생성해주세요.
+    설명의 경우 기본 설명의 본질은 유지하면서, 사용자들의 피드백을 자연스럽게 반영해주세요.
+    가격 제안과 비용에 대한 이유는 설명에 포함하지 않고, 설명은 한 문장으로 작성해주세요.
+    가격의 경우 긍정적 평가의 횟수와 부정적 평가의 횟수, 기존 가격과, 제안된 가격과 이유를 모두 고려하여 적정한 가격을 책정해주세요.
+    가격의 숫자는 1 ~ 15 사이로만 리턴해주세요.
 
-    응답 형식:
-    ```json
-    {{
-        "explanation": "설명 내용"
-    }}
-    ```
+    {format_instructions}
     """
 
-def get_updated_explanation(prompt: str) -> str:
-    response = client.chat.completions.create(
-        model=AOAI_DEPLOY_GPT4O_MINI,
-        messages=[
-            {"role": "system", "content": "너는 명절 잔소리에 대한 설명을 생성하는 AI야. 사용자들의 피드백을 반영하여 자연스러운 설명을 만들어내야 해."},
-            {"role": "user", "content": prompt}
-        ]
+    
+    prompt = ChatPromptTemplate.from_template(
+        template=template,
+        partial_variables={"format_instructions" : explanation_parser.get_format_instructions()}
     )
 
-    ai_response = response.choices[0].message.content
+    # 프롬프트 템플릿 자체를 반환
+    return prompt, explanation_parser
+
+def get_updated_explanation(prompt_template: ChatPromptTemplate, explanation_parser: PydanticOutputParser, **kwargs) -> str:
+
+    # 새로운 방식으로 체인 구성
+    chain = prompt_template | llm | explanation_parser
     
-    json_match = re.search(r"\{.*\}", ai_response, re.DOTALL)
-    if json_match:
-        try:
-            result = json.loads(json_match.group(0))
-            return f"{result['explanation']}"
-        except json.JSONDecodeError as e:
-            print(f"⚠️ JSON 파싱 오류: {e}")
-            return None
-    return None
+    try:
+        # invoke 메서드 사용 (입력 값 없이)
+        parsed_response = chain.invoke(kwargs)
+        print(f"AI응답: {parsed_response}")
+        return parsed_response.explanation, parsed_response.price
+    except Exception as e:
+        print(f"⚠️ 응답 파싱 오류: {e}")
+        return None
 
 @app.post("/feedback/")
 async def handle_feedback(request: FeedbackRequest):
@@ -251,7 +266,6 @@ async def handle_feedback(request: FeedbackRequest):
     
     # 기존 설명에서 핵심 내용 추출
     base_explanation = metadata['explanation']
-    
     final_price = metadata["price"]  # 가격 유지
     
     # 업데이트된 데이터로 새 벡터 생성 및 저장
@@ -303,6 +317,8 @@ async def suggest_price(request: PriceSuggestionRequest):
         "reason": request.reason if request.reason else "이유 없음",
         "timestamp": datetime.now().isoformat()
     })
+
+    print(f"제안 가격: {request.suggested_price}")
     
     # 가중치를 적용한 가격 계산
     weight_existing = positive_feedback / (positive_feedback + negative_feedback)
@@ -311,9 +327,10 @@ async def suggest_price(request: PriceSuggestionRequest):
     
     # 기존 설명에서 핵심 내용 추출
     base_explanation = metadata['explanation'].split('📖 설명: ')[0].split('.')[0].strip()
+    print(f"최종 가격: {final_price}")
     
     # AI를 사용하여 새로운 설명 생성
-    prompt = generate_price_suggestion_prompt(
+    prompt_template, explanation_parser = generate_price_suggestion_prompt(
         base_explanation,
         positive_feedback,
         negative_feedback,
@@ -322,7 +339,19 @@ async def suggest_price(request: PriceSuggestionRequest):
         request.reason if request.reason else "이유 없음"
     )
 
-    new_explanation = get_updated_explanation(prompt)
+    new_explanation, new_price = get_updated_explanation(
+        prompt_template,
+        explanation_parser,
+        base_explanation=base_explanation,
+        positive_count=positive_feedback,
+        negative_count=negative_feedback,
+        original_price=metadata["price"],
+        suggested_price=request.suggested_price,
+        reason=request.reason if request.reason else "이유 없음"
+    )
+
+    print(f"제안된 가격: {request.suggested_price}")
+
     if not new_explanation:
         new_explanation = f"{base_explanation}"
     
@@ -330,13 +359,15 @@ async def suggest_price(request: PriceSuggestionRequest):
     new_remarks = [{
         "remark": request.remark,
         "explanation": new_explanation,
-        "price": final_price,
+        "price": new_price,
         "feedback_count": feedback_count,
         "positive_feedback": positive_feedback,
         "negative_feedback": negative_feedback,
         "feedback_history": feedback_history,
         "last_updated": datetime.now().isoformat()
     }]
+
+    print(f"새로운 설명 {new_explanation}")
     
     try:
         add_remarks_to_faiss(new_remarks, update_existing=True)
@@ -344,7 +375,7 @@ async def suggest_price(request: PriceSuggestionRequest):
         return {
             "status": "success", 
             "message": "가격 제안이 반영되었습니다.",
-            "updated_price": f"{final_price}만원"
+            "updated_price": f"{new_price}만원"
         }
     except Exception as e:
         print(f"가격 제안 처리 중 오류 발생: {e}")

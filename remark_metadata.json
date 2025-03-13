@@ -674,12 +674,314 @@
     "last_updated": "2025-03-12T16:57:32.621328"
   },
   {
+    "remark": "  공부는 하니?",
+    "explanation": "학업 성과가 부족하다고 질책하는 잔소리는 사용자 피드백을 반영하여 보다 부드러운 접근이 필요하며, 그러한 점을 감안할 때 4만원의 가격이 적절하다고 생각합니다.",
+    "price": 4,
+    "feedback_count": 2,
+    "positive_feedback": 0,
+    "negative_feedback": 2,
+    "feedback_history": [
+      {
+        "is_positive": false,
+        "timestamp": "2025-03-13T15:24:59.251264"
+      },
+      {
+        "is_positive": false,
+        "suggested_price": 2,
+        "reason": "원래 해야 하는 거니까 좀 더 낮춰도 되지 않을까?",
+        "timestamp": "2025-03-13T15:25:16.061013"
+      },
+      {
+        "is_positive": false,
+        "timestamp": "2025-03-13T15:25:45.513630"
+      },
+      {
+        "is_positive": false,
+        "suggested_price": 4,
+        "reason": "나는 너무 자주 듣는 소리인만큼 4만원이 적당하다고 생각해",
+        "timestamp": "2025-03-13T15:26:15.375272"
+      }
+    ],
+    "last_updated": "2025-03-13T15:26:16.768693"
+  },
+  {
+    "remark": "공부는 하니?",
+    "explanation": "학업 성과에 대한 우려를 전달하며, 사용자들의 피드백을 반영하여 보다 유연하게 접근하는 방식으로 가격을 4만원으로 제안합니다.",
+    "price": 4,
+    "feedback_count": 3,
+    "positive_feedback": 1,
+    "negative_feedback": 2,
+    "feedback_history": [
+      {
+        "is_positive": false,
+        "timestamp": "2025-03-13T15:24:59.251264"
+      },
+      {
+        "is_positive": false,
+        "suggested_price": 2,
+        "reason": "원래 해야 하는 거니까 좀 더 낮춰도 되지 않을까?",
+        "timestamp": "2025-03-13T15:25:16.061013"
+      },
+      {
+        "is_positive": false,
+        "timestamp": "2025-03-13T15:27:05.556849"
+      },
+      {
+        "is_positive": false,
+        "suggested_price": 4,
+        "reason": "이유 없음",
+        "timestamp": "2025-03-13T15:27:10.594403"
+      },
+      {
+        "is_positive": true,
+        "timestamp": "2025-03-13T15:27:33.930583"
+      }
+    ],
+    "last_updated": "2025-03-13T15:27:33.930594"
+  },
+  {
+    "remark": "결혼은 안하니?",
+    "explanation": "결혼 관련 잔소리는 부정적인 평가가 많아 신중하게 접근해야 하며, 이유 없이 제안된 12만원은 기존 가격보다 낮지만 사용자들의 부정적인 피드백을 고려할 때 적합성을 재고해야 할 필요가 있습니다.",
+    "price": 12,
+    "feedback_count": 3,
+    "positive_feedback": 0,
+    "negative_feedback": 3,
+    "feedback_history": [
+      {
+        "is_positive": false,
+        "timestamp": "2025-03-13T15:47:50.104605"
+      },
+      {
+        "is_positive": false,
+        "suggested_price": 14,
+        "reason": "이유 없음",
+        "timestamp": "2025-03-13T15:47:58.148551"
+      },
+      {
+        "is_positive": false,
+        "timestamp": "2025-03-13T15:51:41.684326"
+      },
+      {
+        "is_positive": false,
+        "suggested_price": 13,
+        "reason": "이유 없음",
+        "timestamp": "2025-03-13T15:51:49.238263"
+      },
+      {
+        "is_positive": false,
+        "timestamp": "2025-03-13T15:52:24.776080"
+      },
+      {
+        "is_positive": false,
+        "suggested_price": 12,
+        "reason": "이유 없음",
+        "timestamp": "2025-03-13T15:52:31.646823"
+      }
+    ],
+    "last_updated": "2025-03-13T15:52:33.063437"
+  },
+  {
+    "remark": "너는 요즘 뭐하고 지내니?",
+    "explanation": "취업 관련 잔소리: 가벼운 듯하지만, 취업 상태를 은근히 물어보는 잔소리.",
+    "price": 7
+  },
+  {
+    "remark": "취업 준비는 잘 되고 있니?",
+    "explanation": "취업 관련 잔소리: 진행 상황을 반복적으로 확인하여 피로감을 유발.",
+    "price": 8
+  },
+  {
+    "remark": "너 이번에는 꼭 취업해야지?",
+    "explanation": "취업 관련 잔소리: 압박감을 주며, 성과에 대한 부담을 크게 만드는 잔소리.",
+    "price": 10
+  },
+  {
+    "remark": "요즘 다들 그렇게 해서라도 취업하더라.",
+    "explanation": "취업 관련 잔소리: 비교를 통한 압박을 가하며 듣기 불편한 잔소리.",
+    "price": 11
+  },
+  {
+    "remark": "너는 대체 하고 싶은 게 뭐야?",
+    "explanation": "취업 관련 잔소리: 개인적인 진로 고민을 조롱 섞인 어조로 재확인하려는 발언.",
+    "price": 12
+  },
+  {
+    "remark": "너 언제 결혼하니?",
+    "explanation": "결혼 관련 잔소리: 결혼 계획이 있는지 반복적으로 묻는 부담스러운 질문.",
+    "price": 15
+  },
+  {
+    "remark": "너도 이제 슬슬 결혼 생각해야지.",
+    "explanation": "결혼 관련 잔소리: 본인은 아직 준비가 안 된 상황인데 조급함을 주는 말.",
+    "price": 14
+  },
+  {
+    "remark": "요즘 좋은 사람 없니?",
+    "explanation": "결혼 관련 잔소리: 연애 여부를 추궁하면서 부담과 민망함을 같이 느끼게 함.",
+    "price": 12
+  },
+  {
+    "remark": "친구들은 다 결혼했더라.",
+    "explanation": "결혼 관련 잔소리: 비교를 통해 결혼하지 않은 상태를 부정적으로 만듦.",
+    "price": 13
+  },
+  {
+    "remark": "집이 문제니, 네가 눈이 높은 거니?",
+    "explanation": "결혼 관련 잔소리: 결혼하지 못한 이유를 단정 지으려는 불편한 질문.",
+    "price": 11
+  },
+  {
+    "remark": "결혼했으면 이제 애는 언제 낳을 거야?",
+    "explanation": "자녀·출산 관련 잔소리: 개인 사생활에 지나치게 개입하는 질문.",
+    "price": 14
+  },
+  {
+    "remark": "요즘 애들은 늦게 낳으면 힘들다던데.",
+    "explanation": "자녀·출산 관련 잔소리: 과학적 데이터와 상관없이 압박을 가하는 말.",
+    "price": 13
+  },
+  {
+    "remark": "애 없으면 나중에 외로워.",
+    "explanation": "자녀·출산 관련 잔소리: 가정과 자녀를 결부하여 죄책감을 주는 발언.",
+    "price": 10
+  },
+  {
+    "remark": "손주는 내가 살아 있을 때 좀 봐야 되는 거 아니니?",
+    "explanation": "자녀·출산 관련 잔소리: 부모님의 간접적인 압박과 죄책감을 느끼게 만듦.",
+    "price": 12
+  },
+  {
+    "remark": "다 키우고 나면 좋다는걸 왜 모르니?",
+    "explanation": "자녀·출산 관련 잔소리: 출산 및 육아를 하지 않는 선택을 문제 삼는 잔소리.",
+    "price": 11
+  },
+  {
+    "remark": "공부 좀 해라.",
+    "explanation": "학업 관련 잔소리: 가장 흔하면서도 뻔하지만 여전히 듣기 싫은 말.",
+    "price": 3
+  },
+  {
+    "remark": "이번 시험 준비는 잘 되고 있니?",
+    "explanation": "학업 관련 잔소리: 시험 스트레스를 추가로 주는 부담이 큰 잔소리.",
+    "price": 5
+  },
+  {
+    "remark": "너 이러다 대학은 가겠니?",
+    "explanation": "학업 관련 잔소리: 미래에 대한 불투명성을 강조하여 압박을 가함.",
+    "price": 6
+  },
+  {
+    "remark": "옆집 누구는 이런 전공 하더라.",
+    "explanation": "학업 관련 잔소리: 비교를 통해 자존감을 떨어뜨리는 발언.",
+    "price": 7
+  },
+  {
+    "remark": "너희 때만 공부 열심히 하면 된다.",
+    "explanation": "학업 관련 잔소리: 지나친 일반화를 통해 개인 상황을 무시하는 말.",
+    "price": 8
+  },
+  {
+    "remark": "살 좀 빼야 하지 않겠니?",
+    "explanation": "외모·건강 관련 잔소리: 외모에 신경을 쓰게 만들며 자존감을 건드리는 말.",
+    "price": 12
+  },
+  {
+    "remark": "요즘 왜 이렇게 얼굴이 상했어?",
+    "explanation": "외모·건강 관련 잔소리: 말투는 관심인 척하지만 기분 나쁘게 만드는 잔소리.",
+    "price": 11
+  },
+  {
+    "remark": "밥은 좀 챙겨 먹니?",
+    "explanation": "외모·건강 관련 잔소리: 건강을 걱정한다지만 반복되면 스트레스가 되는 말.",
+    "price": 10
+  },
+  {
+    "remark": "운동은 좀 해야지.",
+    "explanation": "외모·건강 관련 잔소리: 운동하지 않는 라이프스타일에 간섭하는 잔소리.",
+    "price": 9
+  },
+  {
+    "remark": "요즘 피부관리는 안 하니?",
+    "explanation": "외모·건강 관련 잔소리: 스스로를 소홀히 한 것처럼 느끼게 만드는 발언.",
+    "price": 8
+  },
+  {
+    "remark": "월급은 얼마니?",
+    "explanation": "돈·재테크 관련 잔소리: 금전적인 사생활을 지나치게 캐묻는 민감한 질문.",
+    "price": 14
+  },
+  {
+    "remark": "돈 모으고는 있니?",
+    "explanation": "돈·재테크 관련 잔소리: 재테크 계획을 묻는 듯하면서 부담을 유발.",
+    "price": 12
+  },
+  {
+    "remark": "적금 같은 건 들었어?",
+    "explanation": "돈·재테크 관련 잔소리: 정작 개인 재정 상태를 모르면서 상담하는 척하는 말.",
+    "price": 10
+  },
+  {
+    "remark": "요즘 부동산 잘 알아봐야 돼.",
+    "explanation": "돈·재테크 관련 잔소리: 미래 대비가 부족하다는 식으로 느껴지는 조언.",
+    "price": 9
+  },
+  {
+    "remark": "네 나이에 그 정도 벌면 괜찮아?",
+    "explanation": "돈·재테크 관련 잔소리: 현재 소득이나 성과를 간접적으로 비판.",
+    "price": 13
+  },
+  {
+    "remark": "설거지는 같이 하면 좋지 않겠니?",
+    "explanation": "집안일 관련 잔소리: 집안 분업에 대한 잔소리가 은근히 많아지는 발언.",
+    "price": 5
+  },
+  {
+    "remark": "청소는 언제 할 생각이야?",
+    "explanation": "집안일 관련 잔소리: 주변 상태를 지적하며 압박을 주는 잔소리.",
+    "price": 7
+  },
+  {
+    "remark": "요리도 좀 배우면 좋겠네.",
+    "explanation": "집안일 관련 잔소리: 개인의 요리 실력을 평가하고 기대를 강요.",
+    "price": 8
+  },
+  {
+    "remark": "빨래는 왜 안 널었니?",
+    "explanation": "집안일 관련 잔소리: 사소한 집안일마저 꾸중 듣는 느낌을 주는 발언.",
+    "price": 6
+  },
+  {
+    "remark": "집안일은 좀 도와야지",
+    "explanation": "집안일과 관련된 잔소리는 자주 발생하지만 실질적인 해결이 어려운 문제로, 많은 사람들이 비용 문제를 느끼고 있습니다.",
+    "price": 4,
+    "feedback_count": 2,
+    "positive_feedback": 1,
+    "negative_feedback": 1,
+    "feedback_history": [
+      {
+        "is_positive": false,
+        "timestamp": "2025-03-13T17:09:59.768465"
+      },
+      {
+        "is_positive": false,
+        "suggested_price": 3,
+        "reason": "집안일에 6만원은 너무 비싼 것 같아요",
+        "timestamp": "2025-03-13T17:10:21.061775"
+      },
+      {
+        "is_positive": true,
+        "timestamp": "2025-03-13T17:11:48.476823"
+      }
+    ],
+    "last_updated": "2025-03-13T17:11:48.476835"
+  },
+  {
     "remark": "청소 좀 해",
-    "explanation": "명절 잔소리는 가족 간의 사랑과 관심을 나타내는 전통적인 소통 방식이지만 일부에게는 부담으로 느껴질 수 있으며, 부정적인 반응이 긍정적인 반응보다 많음을 반영해볼 때, 기존 가격인 3만원은 다소 비싸 보일 수 있어 2만원으로 조정하는 것이 적절한 제안입니다.",
-    "price": 2,
-    "feedback_count": 11,
-    "positive_feedback": 3,
-    "negative_feedback": 8,
+    "explanation": "잔소리는 가족 간의 사랑과 관심을 표현하는 방법으로, 보다 이해심 있는 소통이 필요함을 강조합니다.",
+    "price": 6,
+    "feedback_count": 31,
+    "positive_feedback": 8,
+    "negative_feedback": 23,
     "feedback_history": [
       {
         "is_positive": true,
@@ -766,8 +1068,148 @@
         "suggested_price": 2,
         "reason": "너무 비싸",
         "timestamp": "2025-03-12T17:56:44.284506"
+      },
+      {
+        "is_positive": true,
+        "timestamp": "2025-03-13T10:42:08.141994"
+      },
+      {
+        "is_positive": true,
+        "timestamp": "2025-03-13T10:59:13.845462"
+      },
+      {
+        "is_positive": false,
+        "timestamp": "2025-03-13T13:23:56.013206"
+      },
+      {
+        "is_positive": false,
+        "timestamp": "2025-03-13T13:31:26.953215"
+      },
+      {
+        "is_positive": false,
+        "timestamp": "2025-03-13T13:39:29.988280"
+      },
+      {
+        "is_positive": false,
+        "timestamp": "2025-03-13T14:19:08.792885"
+      },
+      {
+        "is_positive": false,
+        "timestamp": "2025-03-13T14:30:16.559929"
+      },
+      {
+        "is_positive": false,
+        "suggested_price": 3,
+        "reason": "이유 없음",
+        "timestamp": "2025-03-13T14:39:09.608318"
+      },
+      {
+        "is_positive": false,
+        "timestamp": "2025-03-13T14:44:27.002113"
+      },
+      {
+        "is_positive": false,
+        "suggested_price": 3,
+        "reason": "이정도가 적당해",
+        "timestamp": "2025-03-13T14:44:55.166454"
+      },
+      {
+        "is_positive": false,
+        "timestamp": "2025-03-13T15:07:33.550267"
+      },
+      {
+        "is_positive": false,
+        "suggested_price": 3,
+        "reason": "이유 없음",
+        "timestamp": "2025-03-13T15:08:17.408086"
+      },
+      {
+        "is_positive": false,
+        "timestamp": "2025-03-13T15:28:01.774498"
+      },
+      {
+        "is_positive": false,
+        "suggested_price": 3,
+        "reason": "나는 3만원이 적당하다고 생각해",
+        "timestamp": "2025-03-13T15:28:14.971737"
+      },
+      {
+        "is_positive": true,
+        "timestamp": "2025-03-13T15:28:47.158144"
+      },
+      {
+        "is_positive": true,
+        "timestamp": "2025-03-13T16:12:59.369252"
+      },
+      {
+        "is_positive": false,
+        "timestamp": "2025-03-13T16:13:08.294840"
+      },
+      {
+        "is_positive": false,
+        "suggested_price": 5,
+        "reason": "청소에 대한 댓가가 5만원은 되어야한다고 생각합니다.",
+        "timestamp": "2025-03-13T16:13:34.176407"
+      },
+      {
+        "is_positive": false,
+        "timestamp": "2025-03-13T16:16:34.656146"
+      },
+      {
+        "is_positive": false,
+        "suggested_price": 3,
+        "reason": "이유 없음",
+        "timestamp": "2025-03-13T16:16:35.956121"
+      },
+      {
+        "is_positive": false,
+        "timestamp": "2025-03-13T16:17:13.241925"
+      },
+      {
+        "is_positive": false,
+        "suggested_price": 3,
+        "reason": "이유 없음",
+        "timestamp": "2025-03-13T16:17:14.532716"
+      },
+      {
+        "is_positive": true,
+        "timestamp": "2025-03-13T16:17:56.531707"
+      },
+      {
+        "is_positive": false,
+        "timestamp": "2025-03-13T16:18:03.418545"
+      },
+      {
+        "is_positive": false,
+        "suggested_price": 6,
+        "reason": "청소에 대한 댓가가 너무 저렴합니다.",
+        "timestamp": "2025-03-13T16:18:27.154013"
+      },
+      {
+        "is_positive": false,
+        "timestamp": "2025-03-13T16:59:14.102643"
+      },
+      {
+        "is_positive": false,
+        "suggested_price": 7,
+        "reason": "이유 없음",
+        "timestamp": "2025-03-13T16:59:23.202659"
+      },
+      {
+        "is_positive": false,
+        "timestamp": "2025-03-13T17:48:19.988223"
+      },
+      {
+        "is_positive": false,
+        "suggested_price": 4,
+        "reason": "청소에 9만원은 너무 비싸",
+        "timestamp": "2025-03-13T17:48:36.626515"
+      },
+      {
+        "is_positive": false,
+        "timestamp": "2025-03-13T17:48:57.476437"
       }
     ],
-    "last_updated": "2025-03-12T17:56:45.863391"
+    "last_updated": "2025-03-13T17:48:57.476452"
   }
 ]

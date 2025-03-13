@@ -22,6 +22,10 @@ client = AzureOpenAI(
   api_version="2024-10-21"
 )
 
+# TODO: 카테고리에서 기타
+# 판단할 수 있는 LLM
+# 판단 내용의 여부에 따라 카테고라이징 or state 저장 => true, boolean
+
 def generate_prompt():
     return f"""
         아래 카테고리별로 잔소리의 목록을 작성하고, 각 잔소리에 대한 설명과 가격도 함께 제공해주세요.
@@ -273,20 +277,7 @@ def search_similar_remarks(query, top_k=5):
     
     return results
 
-# 예시 데이터
-example_remarks = [
-    # 취업 관련 잔소리 (10~12만원)
-    ("요즘 취업 힘들다던데, 어디 지원해봤어?", "취업 준비 중인 사람에게 부담이 되는 전형적인 질문. 스트레스 강도가 높고 피하기 어려움.", 12),
-    ("네 친구 누구는 어디 들어갔다더라.", "사회적 비교를 유도하는 말로, 상대방에게 자괴감을 줄 가능성이 높음.", 11),
-    ("너는 대기업 안 들어가고 뭐하니?", "대기업 취업에 대한 압박을 주는 질문으로, 듣는 사람에게 부담이 큼.", 10),
-]
-
 # 메인 실행 코드
 if __name__ == "__main__":
     # AI로부터 잔소리 목록 생성 및 FAISS에 저장
     get_ai_list(generate_prompt())
-    
-    # # 생성된 데이터가 없으면 예시 데이터 사용
-    # if not remarks_data:
-    #     print("AI 생성 데이터를 사용할 수 없어 예시 데이터를 사용합니다.")
-    #     add_remarks_to_faiss(example_remarks)
