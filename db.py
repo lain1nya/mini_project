@@ -77,6 +77,9 @@ def generate_prompt():
         반드시 JSON 형식으로 응답해주세요.
     """
 
+# chat template
+# 최대한 이해해서 사용할 것
+
 def get_ai_list(prompt: str):
     response = client.chat.completions.create(
         model=AOAI_DEPLOY_GPT4O,
@@ -152,38 +155,66 @@ index = faiss.IndexFlatL2(dim)
 remark_metadata = []
 
 # 데이터 추가 함수 (FAISS 사용)
-def add_remarks_to_faiss(remarks):
+def add_remarks_to_faiss(remarks, update_existing=False):
     """
-    remarks: 리스트 형태로 (잔소리 텍스트, 설명, 가격) 데이터 추가
+    remarks: 리스트 형태로 (잔소리 텍스트, 설명, 가격) 또는 [{remark, explanation, price, ...}] 데이터 추가
+    update_existing: True인 경우 동일한 잔소리가 있으면 업데이트
     """
-    global remark_metadata
+    global remark_metadata, index
+    
+    # 기존 데이터 로드
+    if os.path.exists(index_path):
+        index = faiss.read_index(index_path)
+    else:
+        index = faiss.IndexFlatL2(dim)
+    
+    if os.path.exists(metadata_path):
+        with open(metadata_path, "r", encoding="utf-8") as f:
+            remark_metadata = json.load(f)
+    else:
+        remark_metadata = []
 
-    for idx, (remark, explanation, price) in enumerate(remarks):
+    for remark_data in remarks:
+        # 데이터 형식 통일
+        if isinstance(remark_data, tuple):
+            remark, explanation, price = remark_data
+            metadata = {
+                "remark": remark,
+                "explanation": explanation,
+                "price": price
+            }
+        else:
+            metadata = remark_data
+            remark = metadata["remark"]
+        
+        # 임베딩 생성
         response = client.embeddings.create(
             input=remark,
             model=AOAI_DEPLOY_EMBED_3_LARGE
         )
         embedding = response.data[0].embedding
+        embedding_array = np.array([embedding]).astype("float32")
         
-        # 벡터를 FAISS 인덱스에 추가
-        # 차원 확인 로그 추가
-        if len(embedding) != dim:
-            print(f"경고: 임베딩 차원({len(embedding)})이 인덱스 차원({dim})과 일치하지 않습니다.")
+        if update_existing:
+            # 동일한 잔소리 검색
+            similar_results = search_similar_remarks(remark, top_k=1)
+            if similar_results and len(similar_results) > 0:
+                result = similar_results[0]
+                if result["distance"] < 0.1:  # 매우 유사한 경우
+                    # 기존 데이터 삭제
+                    old_idx = result["index"]
+                    temp_index = faiss.IndexFlatL2(dim)
+                    for i in range(index.ntotal):
+                        if i != old_idx:
+                            temp_index.add(index.reconstruct(i).reshape(1, -1))
+                    index = temp_index
+                    remark_metadata.pop(old_idx)
+                    print(f"기존 잔소리 '{remark}' 삭제됨")
         
-        # 벡터를 FAISS 인덱스에 추가
-        embedding_array = np.array([embedding]).astype("float32")  # 배열 형태 명확히 지정
-        
-        # 인덱스에 추가
+        # 새 데이터 추가
         index.add(embedding_array)
-        
-        # 메타데이터 저장 (잔소리, 설명, 가격)
-        remark_metadata.append({
-            "remark": remark,
-            "explanation": explanation,
-            "price": price
-        })
-        
-        print(f"Added remark '{remark}' to FAISS index.")
+        remark_metadata.append(metadata)
+        print(f"잔소리 '{remark}' 추가됨")
 
     # 인덱스를 파일로 저장
     faiss.write_index(index, index_path)

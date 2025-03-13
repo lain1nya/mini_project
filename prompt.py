@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 from db import search_similar_remarks, add_remarks_to_faiss
 import numpy as np
 import faiss
+from datetime import datetime
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
 
@@ -29,10 +31,27 @@ client = AzureOpenAI(
 # FastAPI 앱 생성
 app = FastAPI()
 
+# CORS 미들웨어 추가
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 모든 origin 허용 (프로덕션에서는 특정 origin만 허용하는 것이 좋습니다)
+    allow_credentials=True,
+    allow_methods=["*"],  # 모든 HTTP 메소드 허용
+    allow_headers=["*"],  # 모든 HTTP 헤더 허용
+)
+
 # 요청 모델 정의
 class RemarkRequest(BaseModel):
     remark: str
 
+class FeedbackRequest(BaseModel):
+    remark: str
+    is_positive: bool
+
+class PriceSuggestionRequest(BaseModel):
+    remark: str
+    suggested_price: int
+    reason: str
 
 # FAISS 인덱스에서 유사한 잔소리 검색하는 함수
 def retrieve_remarks(query, top_k=1):
@@ -149,3 +168,184 @@ async def get_price(request: RemarkRequest):
         "explanation": explanation,
         "price": price_str
     }
+
+def generate_price_suggestion_prompt(base_explanation: str, positive_count: int, negative_count: int, original_price: int, suggested_price: int, reason: str) -> str:
+    return f"""
+    다음은 잔소리에 대한 기본 설명입니다:
+    "{base_explanation}"
+
+    이 잔소리에 대한 피드백 현황:
+    - 긍정적 평가: {positive_count}회
+    - 부정적 평가: {negative_count}회
+
+    현재 상황:
+    - 기존 가격: {original_price}만원
+    - 제안된 가격: {suggested_price}만원
+    - 가격 제안 이유: {reason}
+
+    위 정보를 바탕으로 잔소리에 대한 새로운 설명을 생성해주세요.
+    기본 설명의 본질은 유지하면서, 사용자들의 피드백을 자연스럽게 반영해주세요.
+    설명은 한 문장으로 작성하고, 가격 제안이 적합한지 이유와 함께 얘기해주세요.
+
+    응답 형식:
+    ```json
+    {{
+        "explanation": "설명 내용"
+    }}
+    ```
+    """
+
+def get_updated_explanation(prompt: str) -> str:
+    response = client.chat.completions.create(
+        model=AOAI_DEPLOY_GPT4O_MINI,
+        messages=[
+            {"role": "system", "content": "너는 명절 잔소리에 대한 설명을 생성하는 AI야. 사용자들의 피드백을 반영하여 자연스러운 설명을 만들어내야 해."},
+            {"role": "user", "content": prompt}
+        ]
+    )
+
+    ai_response = response.choices[0].message.content
+    
+    json_match = re.search(r"\{.*\}", ai_response, re.DOTALL)
+    if json_match:
+        try:
+            result = json.loads(json_match.group(0))
+            return f"{result['explanation']}"
+        except json.JSONDecodeError as e:
+            print(f"⚠️ JSON 파싱 오류: {e}")
+            return None
+    return None
+
+@app.post("/feedback/")
+async def handle_feedback(request: FeedbackRequest):
+    print(f"피드백 받음: {request}")
+    
+    # 기존 데이터 검색
+    similar_results = search_similar_remarks(request.remark, top_k=1)
+    if not similar_results or len(similar_results) == 0:
+        return {"status": "error", "message": "피드백을 줄 잔소리를 찾을 수 없습니다."}
+    
+    result = similar_results[0]
+    metadata = result["metadata"]
+    
+    # 기존 피드백 데이터 가져오기 (없으면 기본값 사용)
+    feedback_count = metadata.get("feedback_count", 0) + 1
+    positive_feedback = metadata.get("positive_feedback", 0)
+    negative_feedback = metadata.get("negative_feedback", 0)
+    feedback_history = metadata.get("feedback_history", [])
+    
+    if request.is_positive:
+        print("긍정적인 피드백 - 현재 가격 유지")
+        positive_feedback += 1
+        feedback_history.append({
+            "is_positive": True,
+            "timestamp": datetime.now().isoformat()
+        })
+    else:
+        print("부정적인 피드백 - 현재 가격 유지")
+        negative_feedback += 1
+        feedback_history.append({
+            "is_positive": False,
+            "timestamp": datetime.now().isoformat()
+        })
+    
+    # 기존 설명에서 핵심 내용 추출
+    base_explanation = metadata['explanation']
+    
+    final_price = metadata["price"]  # 가격 유지
+    
+    # 업데이트된 데이터로 새 벡터 생성 및 저장
+    new_remarks = [{
+        "remark": request.remark,
+        "explanation": base_explanation,
+        "price": final_price,
+        "feedback_count": feedback_count,
+        "positive_feedback": positive_feedback,
+        "negative_feedback": negative_feedback,
+        "feedback_history": feedback_history,
+        "last_updated": datetime.now().isoformat()
+    }]
+    
+    try:
+        add_remarks_to_faiss(new_remarks, update_existing=True)
+        print("피드백이 데이터베이스에 반영되었습니다.")
+        return {
+            "status": "success", 
+            "message": "피드백이 반영되었습니다.",
+            "updated_price": f"{final_price}만원"
+        }
+    except Exception as e:
+        print(f"피드백 처리 중 오류 발생: {e}")
+        return {"status": "error", "message": "피드백 처리 중 오류가 발생했습니다."}
+
+@app.post("/suggest-price/")
+async def suggest_price(request: PriceSuggestionRequest):
+    print(f"가격 제안 받음: {request}")
+    
+    # 기존 데이터 검색
+    similar_results = search_similar_remarks(request.remark, top_k=1)
+    if not similar_results or len(similar_results) == 0:
+        return {"status": "error", "message": "가격을 제안할 잔소리를 찾을 수 없습니다."}
+    
+    result = similar_results[0]
+    metadata = result["metadata"]
+    
+    # 기존 피드백 데이터 가져오기
+    feedback_count = metadata.get("feedback_count", 0)
+    positive_feedback = metadata.get("positive_feedback", 0)
+    negative_feedback = metadata.get("negative_feedback", 0)
+    feedback_history = metadata.get("feedback_history", [])
+    
+    # 가격 제안 및 이유 추가 반영
+    feedback_history.append({
+        "is_positive": False,
+        "suggested_price": request.suggested_price,
+        "reason": request.reason if request.reason else "이유 없음",
+        "timestamp": datetime.now().isoformat()
+    })
+    
+    # 가중치를 적용한 가격 계산
+    weight_existing = positive_feedback / (positive_feedback + negative_feedback)
+    weight_new = negative_feedback / (positive_feedback + negative_feedback)
+    final_price = int(metadata["price"] * weight_existing + request.suggested_price * weight_new)
+    
+    # 기존 설명에서 핵심 내용 추출
+    base_explanation = metadata['explanation'].split('📖 설명: ')[0].split('.')[0].strip()
+    
+    # AI를 사용하여 새로운 설명 생성
+    prompt = generate_price_suggestion_prompt(
+        base_explanation,
+        positive_feedback,
+        negative_feedback,
+        metadata["price"], 
+        request.suggested_price,
+        request.reason if request.reason else "이유 없음"
+    )
+
+    new_explanation = get_updated_explanation(prompt)
+    if not new_explanation:
+        new_explanation = f"{base_explanation}"
+    
+    # 업데이트된 데이터로 새 벡터 생성 및 저장
+    new_remarks = [{
+        "remark": request.remark,
+        "explanation": new_explanation,
+        "price": final_price,
+        "feedback_count": feedback_count,
+        "positive_feedback": positive_feedback,
+        "negative_feedback": negative_feedback,
+        "feedback_history": feedback_history,
+        "last_updated": datetime.now().isoformat()
+    }]
+    
+    try:
+        add_remarks_to_faiss(new_remarks, update_existing=True)
+        print("가격 제안이 데이터베이스에 반영되었습니다.")
+        return {
+            "status": "success", 
+            "message": "가격 제안이 반영되었습니다.",
+            "updated_price": f"{final_price}만원"
+        }
+    except Exception as e:
+        print(f"가격 제안 처리 중 오류 발생: {e}")
+        return {"status": "error", "message": "가격 제안 처리 중 오류가 발생했습니다."}
