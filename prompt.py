@@ -6,7 +6,7 @@ import re
 from openai import AzureOpenAI
 from pprint import pprint
 from dotenv import load_dotenv
-from db import search_similar_remarks, add_remarks_to_faiss
+from db import process_remark_with_tool_calling, add_remarks_to_faiss
 import numpy as np
 import faiss
 from datetime import datetime
@@ -58,18 +58,18 @@ app.add_middleware(
 )
 
 
-# FAISS 인덱스에서 유사한 잔소리 검색하는 함수
-def retrieve_remarks(query, top_k=1):
-    # FAISS 인덱스를 사용하여 유사한 잔소리 검색
-    similar_results = search_similar_remarks(query, top_k)
+# # FAISS 인덱스에서 유사한 잔소리 검색하는 함수
+# def retrieve_remarks(query, top_k=1):
+#     # FAISS 인덱스를 사용하여 유사한 잔소리 검색
+#     similar_results = search_similar_remarks(query, top_k)
     
-    if similar_results and len(similar_results) > 0:
-        # 첫 번째 결과 사용
-        result = similar_results[0]
-        metadata = result["metadata"]
-        return metadata["remark"], metadata["explanation"], metadata["price"]
-    else:
-        return None, None, None
+#     if similar_results and len(similar_results) > 0:
+#         # 첫 번째 결과 사용
+#         result = similar_results[0]
+#         metadata = result["metadata"]
+#         return metadata["remark"], metadata["explanation"], metadata["price"]
+#     else:
+#         return None, None, None
 
 
 # CoT + Few-shot + 템플릿 적용
@@ -138,17 +138,18 @@ def get_ai_response(prompt_messages):
         print(f"⚠️ 응답 파싱 오류: {e}")
         return "AI 응답을 파싱할 수 없습니다.", "가격을 파싱할 수 없습니다."
 
-# TODO: 입력된 잔소리가 아닐 경우 잔소리 백터 디비에 전달하는 기준 다시 만들기
 @app.post("/get_price/")
 async def get_price(request: RemarkRequest):
     print(f"입력된 잔소리: {request.remark}")
-    retrieved_text, retrieved_explanation, retrieved_price = retrieve_remarks(request.remark)
-    if retrieved_text:
+    similar_results = process_remark_with_tool_calling(request.remark)
+    if similar_results:
+        result = similar_results[0]
+        metadata = result["metadata"]
         return {
             "remark": request.remark,
-            "retrieved_remark": retrieved_text,
-            "explanation" : retrieved_explanation,
-            "price": f"{retrieved_price}만원",
+            "retrieved_remark": metadata["remark"],
+            "explanation" : metadata["explanation"],
+            "price": f"{metadata['price']}만원",
             "new": False,
         }
 
@@ -236,7 +237,7 @@ async def handle_feedback(request: FeedbackRequest):
     print(f"피드백 받음: {request}")
     
     # 기존 데이터 검색
-    similar_results = search_similar_remarks(request.remark, top_k=1)
+    similar_results = process_remark_with_tool_calling(request.remark, top_k=1)
     if not similar_results or len(similar_results) == 0:
         return {"status": "error", "message": "피드백을 줄 잔소리를 찾을 수 없습니다."}
     
@@ -297,8 +298,8 @@ async def suggest_price(request: PriceSuggestionRequest):
     print(f"가격 제안 받음: {request}")
     
     # 기존 데이터 검색
-    similar_results = search_similar_remarks(request.remark, top_k=1)
-    if not similar_results or len(similar_results) == 0:
+    similar_results = process_remark_with_tool_calling(request.remark, top_k=1)
+    if not similar_results:
         return {"status": "error", "message": "가격을 제안할 잔소리를 찾을 수 없습니다."}
     
     result = similar_results[0]
