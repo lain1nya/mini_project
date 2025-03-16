@@ -1,12 +1,11 @@
 from fastapi import FastAPI
+from nagging_graph import llm, embeddings, supervisor_executor
 from models import RemarkRequest, FeedbackRequest, PriceSuggestionRequest, PriceAnalysisOutput
-import os
 import json
 import re
 from openai import AzureOpenAI
 from pprint import pprint
-from dotenv import load_dotenv
-from db import process_remark_with_tool_calling, add_remarks_to_faiss
+from db import add_remarks_to_faiss
 import numpy as np
 import faiss
 from datetime import datetime
@@ -18,32 +17,7 @@ from langchain_community.embeddings import AzureOpenAIEmbeddings
 from langchain.output_parsers import ResponseSchema, PydanticOutputParser
 from pydantic import BaseModel, Field
 
-# env 로드
-load_dotenv()
-
-AOAI_ENDPOINT=os.getenv("AOAI_ENDPOINT")
-AOAI_API_KEY=os.getenv("AOAI_API_KEY")
-AOAI_DEPLOY_GPT4O=os.getenv("AOAI_DEPLOY_GPT4O")
-AOAI_DEPLOY_GPT4O_MINI=os.getenv("AOAI_DEPLOY_GPT4O_MINI")
-AOAI_DEPLOY_EMBED_3_LARGE=os.getenv("AOAI_DEPLOY_EMBED_3_LARGE")
-AOAI_DEPLOY_EMBED_3_SMALL=os.getenv("AOAI_DEPLOY_EMBED_3_SMALL")
-AOAI_DEPLOY_EMBED_ADA=os.getenv("AOAI_DEPLOY_EMBED_ADA")
-
-# Langchain 모델 설정
-llm = AzureChatOpenAI(
-    openai_api_version="2024-10-21",
-    azure_deployment=AOAI_DEPLOY_GPT4O_MINI,
-    azure_endpoint=AOAI_ENDPOINT,
-    api_key=AOAI_API_KEY
-)
-
 output_parser = PydanticOutputParser(pydantic_object=PriceAnalysisOutput)
-
-client = AzureOpenAI(
-  azure_endpoint = AOAI_ENDPOINT, 
-  api_key=AOAI_API_KEY,  
-  api_version="2024-10-21"
-)
 
 # FastAPI 앱 생성
 app = FastAPI()
@@ -56,21 +30,6 @@ app.add_middleware(
     allow_methods=["*"],  # 모든 HTTP 메소드 허용
     allow_headers=["*"],  # 모든 HTTP 헤더 허용
 )
-
-
-# # FAISS 인덱스에서 유사한 잔소리 검색하는 함수
-# def retrieve_remarks(query, top_k=1):
-#     # FAISS 인덱스를 사용하여 유사한 잔소리 검색
-#     similar_results = search_similar_remarks(query, top_k)
-    
-#     if similar_results and len(similar_results) > 0:
-#         # 첫 번째 결과 사용
-#         result = similar_results[0]
-#         metadata = result["metadata"]
-#         return metadata["remark"], metadata["explanation"], metadata["price"]
-#     else:
-#         return None, None, None
-
 
 # CoT + Few-shot + 템플릿 적용
 def generate_prompt(remark: str):
@@ -117,7 +76,6 @@ def generate_prompt(remark: str):
     )
 
 def get_ai_response(prompt_messages):
-    
     # 해석: 데이터가 흐르는 순서
     # 프롬프트 -> LLM 응답 -> 응답 파싱
     chain = prompt_messages | llm | output_parser
@@ -137,47 +95,6 @@ def get_ai_response(prompt_messages):
     except Exception as e:
         print(f"⚠️ 응답 파싱 오류: {e}")
         return "AI 응답을 파싱할 수 없습니다.", "가격을 파싱할 수 없습니다."
-
-@app.post("/get_price/")
-async def get_price(request: RemarkRequest):
-    print(f"입력된 잔소리: {request.remark}")
-    similar_results = process_remark_with_tool_calling(request.remark)
-    if similar_results:
-        result = similar_results[0]
-        metadata = result["metadata"]
-        return {
-            "remark": request.remark,
-            "retrieved_remark": metadata["remark"],
-            "explanation" : metadata["explanation"],
-            "price": f"{metadata['price']}만원",
-            "new": False,
-        }
-
-    prompt = generate_prompt(request.remark)
-    explanation, price_str = get_ai_response(prompt)
-    
-    # 가격에서 '만원' 제거하고 정수로 변환
-    price = int(price_str.replace('만원', ''))
-    
-    # 새로운 잔소리를 vector db에 추가
-    print("새로운 잔소리를 데이터베이스에 추가합니다.")
-    new_remarks = [{
-        "remark": request.remark,
-        "explanation": explanation,
-        "price": price
-    }]
-    try:
-        add_remarks_to_faiss(new_remarks)
-        print("데이터베이스 추가 완료")
-    except Exception as e:
-        print(f"데이터베이스 추가 중 오류 발생: {e}")
-
-    return {
-        "new": True,
-        "remark": request.remark,
-        "explanation": explanation,
-        "price": price_str
-    }
 
 def generate_price_suggestion_prompt(base_explanation: str, positive_count: int, negative_count: int, original_price: int, suggested_price: int, reason: str) -> ChatPromptTemplate:
     # 설명 생성을 위한 출력 파서 스키마
@@ -232,66 +149,121 @@ def get_updated_explanation(prompt_template: ChatPromptTemplate, explanation_par
         print(f"⚠️ 응답 파싱 오류: {e}")
         return None
 
+@app.post("/get_price/")
+async def get_price(request: RemarkRequest):
+    print(f"입력된 잔소리: {request.remark}")
+    state = {
+        "remark": request.remark,
+        "category": "",
+        "price": 0,
+        "explanation": ""
+    }
+    
+    session_id = supervisor_executor.invoke(state)
+    return {
+        "session_id" : session_id,
+        "result" : session_id,
+        "message" : "분석이 완료되었습니다. 해당 가격이 어떤지 알려주세요."
+    }
+
+    # # 가격 출력
+    # similar_results = supervisor_executor.invoke(request.remark)
+
+    # prompt = generate_prompt(request.remark)
+    # explanation, price_str = get_ai_response(prompt)
+    
+    # # 가격에서 '만원' 제거하고 정수로 변환
+    # price = int(price_str.replace('만원', ''))
+    
+    # # 새로운 잔소리를 vector db에 추가
+    # print("새로운 잔소리를 데이터베이스에 추가합니다.")
+    # new_remarks = [{
+    #     "remark": request.remark,
+    #     "explanation": explanation,
+    #     "price": price
+    # }]
+    # try:
+    #     add_remarks_to_faiss(new_remarks)
+    #     print("데이터베이스 추가 완료")
+    # except Exception as e:
+    #     print(f"데이터베이스 추가 중 오류 발생: {e}")
+
+    # return {
+    #     "new": True,
+    #     "remark": request.remark,
+    #     "explanation": explanation,
+    #     "price": price_str
+    # }
+
 @app.post("/feedback/")
 async def handle_feedback(request: FeedbackRequest):
-    print(f"피드백 받음: {request}")
+    """프론트에서 버튼을 누르면 멈춘 Graph를 다시 실행"""
+    session_id = request.session_id
+    updated_state = supervisor_executor.invoke(session_id, request.dict())
+
+    return {
+        "status": "success",
+        "message": "피드백이 반영되었습니다.",
+        "updated_price": f"{updated_state['price']}만원"
+    }
+    # print(f"피드백 받음: {request}")
     
-    # 기존 데이터 검색
-    similar_results = process_remark_with_tool_calling(request.remark, top_k=1)
-    if not similar_results or len(similar_results) == 0:
-        return {"status": "error", "message": "피드백을 줄 잔소리를 찾을 수 없습니다."}
+    # # 기존 데이터 검색
+    # similar_results = process_remark_with_tool_calling(request.remark, top_k=1)
+    # if not similar_results or len(similar_results) == 0:
+    #     return {"status": "error", "message": "피드백을 줄 잔소리를 찾을 수 없습니다."}
     
-    result = similar_results[0]
-    metadata = result["metadata"]
+    # result = similar_results[0]
+    # metadata = result["metadata"]
     
-    # 기존 피드백 데이터 가져오기 (없으면 기본값 사용)
-    feedback_count = metadata.get("feedback_count", 0) + 1
-    positive_feedback = metadata.get("positive_feedback", 0)
-    negative_feedback = metadata.get("negative_feedback", 0)
-    feedback_history = metadata.get("feedback_history", [])
+    # # 기존 피드백 데이터 가져오기 (없으면 기본값 사용)
+    # feedback_count = metadata.get("feedback_count", 0) + 1
+    # positive_feedback = metadata.get("positive_feedback", 0)
+    # negative_feedback = metadata.get("negative_feedback", 0)
+    # feedback_history = metadata.get("feedback_history", [])
     
-    if request.is_positive:
-        print("긍정적인 피드백 - 현재 가격 유지")
-        positive_feedback += 1
-        feedback_history.append({
-            "is_positive": True,
-            "timestamp": datetime.now().isoformat()
-        })
-    else:
-        print("부정적인 피드백 - 현재 가격 유지")
-        negative_feedback += 1
-        feedback_history.append({
-            "is_positive": False,
-            "timestamp": datetime.now().isoformat()
-        })
+    # if request.is_positive:
+    #     print("긍정적인 피드백 - 현재 가격 유지")
+    #     positive_feedback += 1
+    #     feedback_history.append({
+    #         "is_positive": True,
+    #         "timestamp": datetime.now().isoformat()
+    #     })
+    # else:
+    #     print("부정적인 피드백 - 현재 가격 유지")
+    #     negative_feedback += 1
+    #     feedback_history.append({
+    #         "is_positive": False,
+    #         "timestamp": datetime.now().isoformat()
+    #     })
     
-    # 기존 설명에서 핵심 내용 추출
-    base_explanation = metadata['explanation']
-    final_price = metadata["price"]  # 가격 유지
+    # # 기존 설명에서 핵심 내용 추출
+    # base_explanation = metadata['explanation']
+    # final_price = metadata["price"]  # 가격 유지
     
-    # 업데이트된 데이터로 새 벡터 생성 및 저장
-    new_remarks = [{
-        "remark": request.remark,
-        "explanation": base_explanation,
-        "price": final_price,
-        "feedback_count": feedback_count,
-        "positive_feedback": positive_feedback,
-        "negative_feedback": negative_feedback,
-        "feedback_history": feedback_history,
-        "last_updated": datetime.now().isoformat()
-    }]
+    # # 업데이트된 데이터로 새 벡터 생성 및 저장
+    # new_remarks = [{
+    #     "remark": request.remark,
+    #     "explanation": base_explanation,
+    #     "price": final_price,
+    #     "feedback_count": feedback_count,
+    #     "positive_feedback": positive_feedback,
+    #     "negative_feedback": negative_feedback,
+    #     "feedback_history": feedback_history,
+    #     "last_updated": datetime.now().isoformat()
+    # }]
     
-    try:
-        add_remarks_to_faiss(new_remarks, update_existing=True)
-        print("피드백이 데이터베이스에 반영되었습니다.")
-        return {
-            "status": "success", 
-            "message": "피드백이 반영되었습니다.",
-            "updated_price": f"{final_price}만원"
-        }
-    except Exception as e:
-        print(f"피드백 처리 중 오류 발생: {e}")
-        return {"status": "error", "message": "피드백 처리 중 오류가 발생했습니다."}
+    # try:
+    #     add_remarks_to_faiss(new_remarks, update_existing=True)
+    #     print("피드백이 데이터베이스에 반영되었습니다.")
+    #     return {
+    #         "status": "success", 
+    #         "message": "피드백이 반영되었습니다.",
+    #         "updated_price": f"{final_price}만원"
+    #     }
+    # except Exception as e:
+    #     print(f"피드백 처리 중 오류 발생: {e}")
+    #     return {"status": "error", "message": "피드백 처리 중 오류가 발생했습니다."}
 
 @app.post("/suggest-price/")
 async def suggest_price(request: PriceSuggestionRequest):

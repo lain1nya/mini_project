@@ -11,7 +11,11 @@ class FeedbackRequest(BaseModel):
 class PriceSuggestionRequest(BaseModel):
     remark: str
     suggested_price: int
-    reason: str
+    explanation: str
+    repetition: int
+    mental_damage: int
+    avoidance_difficulty: int
+    replaceability: int
 
 class AnalysisItem(BaseModel):
     criteria: str = Field(description="평가 기준 (반복 빈도/정신적 데미지/피할 수 있는 난이도/대체 가능성)")
