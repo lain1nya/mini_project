@@ -3,7 +3,6 @@ from nagging_graph import llm, embeddings, supervisor_executor
 from models import RemarkRequest, FeedbackRequest, PriceSuggestionRequest, PriceAnalysisOutput
 from openai import AzureOpenAI
 from pprint import pprint
-from db import add_remarks_to_faiss
 from langchain_community.vectorstores import FAISS
 from datetime import datetime
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,6 +12,7 @@ from langchain.chains import LLMChain
 from langchain_community.embeddings import AzureOpenAIEmbeddings
 from langchain.output_parsers import ResponseSchema, PydanticOutputParser
 from pydantic import BaseModel, Field
+from faiss_db import replace_remark_in_faiss, search_similar_remark, add_remarks_to_faiss
 
 output_parser = PydanticOutputParser(pydantic_object=PriceAnalysisOutput)
 
@@ -133,28 +133,70 @@ async def get_price(request: RemarkRequest):
 
 @app.post("/feedback/")
 async def handle_feedback(request: FeedbackRequest):
-    """좋아요 vs 나빠요 피드백 반영"""
-    
-    if remark_store == {}:
+    """FAISS에서 유사한 잔소리를 찾고, 존재하면 대체하고 없으면 추가"""
+
+    # 🔍 remark_store에서 해당 잔소리 정보 가져오기
+    remark_data = remark_store.get(request.remark)
+
+    if not remark_data:
+        return {"status": "error", "message": "잔소리 데이터가 존재하지 않습니다."}
+
+    print("🔍 Stored remark result:", remark_data)
+
+    # 🔥 category 필드에 안전하게 접근
+    category = remark_data["category"]
+
+    # 🔍 1️⃣ FAISS에서 유사한 remark 검색 (카테고리 필터링 가능)
+    similar_results = search_similar_remark(request.remark, category)  # 🔥 같은 카테고리 내에서 검색
+
+    print(similar_results)
+
+    if similar_results:
+        metadata = similar_results.metadata  # 🔥 Document 객체의 metadata 가져오기
+        page_content = similar_results.page_content
+
+        print(f"🔍 기존 remark 발견: {page_content} ({metadata})")
+
+        # 🔥 2️⃣ 기존 remark의 피드백 업데이트
+        if request.is_positive:
+            metadata["positive_feedback"] = metadata.get("positive_feedback", 0) + 1
+        else:
+            metadata["negative_feedback"] = metadata.get("negative_feedback", 0) + 1
+
+        print(f"✅ 업데이트된 피드백: {metadata}")
+
+        # 🔥 3️⃣ 기존 remark를 새로운 remark로 대체
+        replace_remark_in_faiss(original_remark=page_content, new_remark=request.remark, updated_metadata=metadata)
+
         return {
-            "status" : "error",
-            "message" : "해당 잔소리에 대한 분석 데이터를 찾을 수 없습니다."
+            "status": "success",
+            "message": "유사한 잔소리를 찾아 대체했습니다.",
+            "updated_remark": metadata
         }
     
-    remark_data = remark_store[request.remark]
+    # 🔥 4️⃣ 유사한 remark가 없으면 새로운 remark 추가
+    print("[Searcher] 유사한 잔소리를 찾지 못함. 새로운 remark 추가.")
+    new_entry = {
+        "remark": request.remark,
+        "category": "일상 잔소리",  # 🔥 기본값 (명절 잔소리일 수도 있음, 필요 시 변경)
+        "suggested_price": 10,  # 🔥 기본값 (LLM을 활용해 결정 가능)
+        "explanation": "이 잔소리는 새로운 항목으로 추가되었습니다.",
+        "repetition": 10,
+        "mental_damage": 10,
+        "avoidance_difficulty": 10,
+        "replaceability": 10,
+        "positive_feedback": 1 if request.is_positive else 0,
+        "negative_feedback": 1 if not request.is_positive else 0
+    }
 
-    if request.is_positive:
-        remark_data["positive_feedback"] += 1
-    else: 
-        remark_data["negative_feedback"] += 1
+    add_remarks_to_faiss([new_entry])  # 🔥 새로운 remark 추가
 
-    remark_store[request.remark] = remark_data
-
-    
     return {
         "status": "success",
-        "message": "피드백이 반영되었습니다.",
+        "message": "새로운 잔소리를 추가했습니다.",
+        "new_remark": new_entry
     }
+
 
 @app.post("/suggest-price/")
 async def suggest_price(request: PriceSuggestionRequest):

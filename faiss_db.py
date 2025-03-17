@@ -132,5 +132,27 @@ def fetch_all_remarks_from_faiss():
     pprint.pprint(remarks)
     return remarks
 
+def replace_remark_in_faiss(original_remark: str, new_remark: str, updated_metadata: dict):
+    """FAISS에서 기존 remark를 찾아 새로운 remark로 대체"""
+    all_documents = db.similarity_search(original_remark, k=10)  # 🔥 최대 10개 검색 후 찾기
+
+    for doc in all_documents:
+        if doc.page_content == original_remark:
+            # 🔥 1️⃣ 기존 remark 삭제
+            db.delete([doc.id])
+
+            # 🔥 2️⃣ 새로운 remark로 교체 (같은 metadata 유지)
+            updated_metadata["remark"] = new_remark  # 🔥 새로운 remark로 교체
+            db.add_texts([new_remark], metadatas=[updated_metadata])
+
+            # 🔥 3️⃣ 변경 사항 저장
+            db.save_local(index_path)
+            print(f"✅ FAISS에서 remark 교체 완료: {original_remark} → {new_remark}")
+            return
+
+    print("❌ 대체할 remark를 찾을 수 없습니다.")
+
+
+
 # 실행 시 FAISS 인덱스 로드
 load_faiss_index()
