@@ -1,13 +1,10 @@
 from fastapi import FastAPI
 from nagging_graph import llm, embeddings, supervisor_executor
 from models import RemarkRequest, FeedbackRequest, PriceSuggestionRequest, PriceAnalysisOutput
-import json
-import re
 from openai import AzureOpenAI
 from pprint import pprint
 from db import add_remarks_to_faiss
-import numpy as np
-import faiss
+from langchain_community.vectorstores import FAISS
 from datetime import datetime
 from fastapi.middleware.cors import CORSMiddleware
 from langchain_openai import AzureChatOpenAI
@@ -31,49 +28,8 @@ app.add_middleware(
     allow_headers=["*"],  # 모든 HTTP 헤더 허용
 )
 
-# CoT + Few-shot + 템플릿 적용
-def generate_prompt(remark: str):
-    template = """
-    다음의 기준을 사용하여 '{remark}' 잔소리의 가격을 측정하세요.
-
-    # 평가 기준
-    1. 반복 빈도 (1~10) - 자주 들을수록 높음
-    2. 정신적 데미지 (1~10) - 듣기 싫을수록 높음
-    3. 피할 수 있는 난이도 (1~10) - 회피 어려울수록 높음
-    4. 대체 가능성 (1~10) - 영원히 사라지지 않을수록 높음
-
-    # 참고 사항
-    - 최저 가격은 1만원, 최대 가격은 15만원입니다.
-    - 각 기준별로 점수와 이유를 상세히 설명해주세요.
-    - 최종 가격은 각 기준의 점수를 종합적으로 고려하여 결정합니다.
-
-    # 예시 분석
-    잔소리: "너 언제 결혼하니?"
-    
-    사고 과정:
-    1. 결혼 관련 잔소리는 특히 명절이나 가족 모임에서 자주 발생
-    2. 개인의 선택과 상황을 고려하지 않는 전형적인 잔소리
-    3. 결혼은 매우 개인적인 문제라 정신적 부담이 큼
-    
-    분석:
-    - 반복 빈도: 10점 (명절, 가족 모임마다 반복되는 단골 잔소리)
-    - 정신적 데미지: 9점 (개인의 상황과 무관하게 사회적 압박을 주는 발언)
-    - 피할 수 있는 난이도: 9점 (가족 모임을 피하기 어려움)
-    - 대체 가능성: 10점 (결혼할 때까지 계속되는 영원한 잔소리)
-    
-    최종 설명: 결혼 관련 잔소리는 개인의 선택을 존중하지 않고 지속적인 정신적 압박을 주는 대표적인 잔소리입니다.
-    최종 가격: 15만원
-
-    이제 '{remark}' 잔소리에 대해 위 예시와 같은 형식으로 분석해주세요.
-
-    {format_instructions}
-    """
-    
-    prompt = ChatPromptTemplate.from_template(template)
-    return prompt.format_messages(
-        remark=remark,
-        format_instructions=output_parser.get_format_instructions()
-    )
+# 피드백을 적용할 데이터를 저장하는 딕셔너리
+remark_store = {}
 
 def get_ai_response(prompt_messages):
     # 해석: 데이터가 흐르는 순서
@@ -126,7 +82,13 @@ def generate_price_suggestion_prompt(base_explanation: str, positive_count: int,
     {format_instructions}
     """
 
-    
+    # 기존에 explanation 업데이트 한 것을 langgraph에 추가
+    # check point, human in the loop
+    # 별도의 그래프
+    # 싫어요 배치
+
+    # langchain_community.vectorstores
+
     prompt = ChatPromptTemplate.from_template(
         template=template,
         partial_variables={"format_instructions" : explanation_parser.get_format_instructions()}
@@ -149,121 +111,50 @@ def get_updated_explanation(prompt_template: ChatPromptTemplate, explanation_par
         print(f"⚠️ 응답 파싱 오류: {e}")
         return None
 
+# DONE
 @app.post("/get_price/")
 async def get_price(request: RemarkRequest):
     print(f"입력된 잔소리: {request.remark}")
     state = {
         "remark": request.remark,
         "category": "",
-        "price": 0,
-        "explanation": ""
+        "suggested_price": 0,
+        "explanation": "",
     }
-    
-    session_id = supervisor_executor.invoke(state)
+     
+    result = supervisor_executor.invoke(state)
+
+    remark_store[request.remark] = result
+
     return {
-        "session_id" : session_id,
-        "result" : session_id,
+        "result" : result,
         "message" : "분석이 완료되었습니다. 해당 가격이 어떤지 알려주세요."
     }
 
-    # # 가격 출력
-    # similar_results = supervisor_executor.invoke(request.remark)
-
-    # prompt = generate_prompt(request.remark)
-    # explanation, price_str = get_ai_response(prompt)
-    
-    # # 가격에서 '만원' 제거하고 정수로 변환
-    # price = int(price_str.replace('만원', ''))
-    
-    # # 새로운 잔소리를 vector db에 추가
-    # print("새로운 잔소리를 데이터베이스에 추가합니다.")
-    # new_remarks = [{
-    #     "remark": request.remark,
-    #     "explanation": explanation,
-    #     "price": price
-    # }]
-    # try:
-    #     add_remarks_to_faiss(new_remarks)
-    #     print("데이터베이스 추가 완료")
-    # except Exception as e:
-    #     print(f"데이터베이스 추가 중 오류 발생: {e}")
-
-    # return {
-    #     "new": True,
-    #     "remark": request.remark,
-    #     "explanation": explanation,
-    #     "price": price_str
-    # }
-
 @app.post("/feedback/")
 async def handle_feedback(request: FeedbackRequest):
-    """프론트에서 버튼을 누르면 멈춘 Graph를 다시 실행"""
-    session_id = request.session_id
-    updated_state = supervisor_executor.invoke(session_id, request.dict())
+    """좋아요 vs 나빠요 피드백 반영"""
+    
+    if remark_store == {}:
+        return {
+            "status" : "error",
+            "message" : "해당 잔소리에 대한 분석 데이터를 찾을 수 없습니다."
+        }
+    
+    remark_data = remark_store[request.remark]
 
+    if request.is_positive:
+        remark_data["positive_feedback"] += 1
+    else: 
+        remark_data["negative_feedback"] += 1
+
+    remark_store[request.remark] = remark_data
+
+    
     return {
         "status": "success",
         "message": "피드백이 반영되었습니다.",
-        "updated_price": f"{updated_state['price']}만원"
     }
-    # print(f"피드백 받음: {request}")
-    
-    # # 기존 데이터 검색
-    # similar_results = process_remark_with_tool_calling(request.remark, top_k=1)
-    # if not similar_results or len(similar_results) == 0:
-    #     return {"status": "error", "message": "피드백을 줄 잔소리를 찾을 수 없습니다."}
-    
-    # result = similar_results[0]
-    # metadata = result["metadata"]
-    
-    # # 기존 피드백 데이터 가져오기 (없으면 기본값 사용)
-    # feedback_count = metadata.get("feedback_count", 0) + 1
-    # positive_feedback = metadata.get("positive_feedback", 0)
-    # negative_feedback = metadata.get("negative_feedback", 0)
-    # feedback_history = metadata.get("feedback_history", [])
-    
-    # if request.is_positive:
-    #     print("긍정적인 피드백 - 현재 가격 유지")
-    #     positive_feedback += 1
-    #     feedback_history.append({
-    #         "is_positive": True,
-    #         "timestamp": datetime.now().isoformat()
-    #     })
-    # else:
-    #     print("부정적인 피드백 - 현재 가격 유지")
-    #     negative_feedback += 1
-    #     feedback_history.append({
-    #         "is_positive": False,
-    #         "timestamp": datetime.now().isoformat()
-    #     })
-    
-    # # 기존 설명에서 핵심 내용 추출
-    # base_explanation = metadata['explanation']
-    # final_price = metadata["price"]  # 가격 유지
-    
-    # # 업데이트된 데이터로 새 벡터 생성 및 저장
-    # new_remarks = [{
-    #     "remark": request.remark,
-    #     "explanation": base_explanation,
-    #     "price": final_price,
-    #     "feedback_count": feedback_count,
-    #     "positive_feedback": positive_feedback,
-    #     "negative_feedback": negative_feedback,
-    #     "feedback_history": feedback_history,
-    #     "last_updated": datetime.now().isoformat()
-    # }]
-    
-    # try:
-    #     add_remarks_to_faiss(new_remarks, update_existing=True)
-    #     print("피드백이 데이터베이스에 반영되었습니다.")
-    #     return {
-    #         "status": "success", 
-    #         "message": "피드백이 반영되었습니다.",
-    #         "updated_price": f"{final_price}만원"
-    #     }
-    # except Exception as e:
-    #     print(f"피드백 처리 중 오류 발생: {e}")
-    #     return {"status": "error", "message": "피드백 처리 중 오류가 발생했습니다."}
 
 @app.post("/suggest-price/")
 async def suggest_price(request: PriceSuggestionRequest):

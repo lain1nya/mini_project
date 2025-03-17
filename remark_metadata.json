@@ -1,72 +1,1894 @@
 [
-  {
-    "remark": "취업 안 할거야?",
-    "explanation": "자주 반복되며 정신적 데미지가 크고, 회피 난이도도 높은 잔소리입니다. 대체 가능성은 적절히 취업 시 감소할 수 있음.",
-    "price": 12
-  },
-  {
-    "remark": "요즘 어디 취업 준비해?",
-    "explanation": "반복은 적지만 질문이 개인 정보를 계속 캐묻는 느낌을 줄 수 있어 스트레스가 높음.",
-    "price": 10
-  },
-  {
-    "remark": "너 아직 결혼 생각 없어?",
-    "explanation": "결혼 관련 잔소리는 개인의 선택을 존중하지 않고 지속적인 정신적 압박을 주는 대표적인 잔소리입니다.",
-    "price": 15
-  },
-  {
-    "remark": "좋은 사람 없니?",
-    "explanation": "은근히 지속적으로 압박을 주며, 대체 가능성이 상당히 낮음. 개인의 스트레스를 유발하는 대표적 사례.",
-    "price": 13
-  },
-  {
-    "remark": "아이 계획은 언제야?",
-    "explanation": "개인의 라이프스타일에 간섭하는 잔소리로 자주 반복되며, 정신적 데미지가 큼.",
-    "price": 14
-  },
-  {
-    "remark": "애는 하나는 있어야지.",
-    "explanation": "사회적 기대감과 스테레오타입을 반영하며 지속적으로 들리기 쉬움.",
-    "price": 13
-  },
-  {
-    "remark": "요즘 공부는 잘 돼?",
-    "explanation": "부담스럽지만 회피 난이도는 비교적 낮아 가격이 덜 책정됨.",
-    "price": 9
-  },
-  {
-    "remark": "성적은 올랐니?",
-    "explanation": "결과를 직접 묻는 질문으로 스트레스를 유발하며 정신적 데미지가 크고 반복될 가능성이 높음.",
-    "price": 11
-  },
-  {
-    "remark": "살 좀 빼야겠네.",
-    "explanation": "자존감을 낮출 수 있는 잔소리로 반복되기 쉽고 회피가 어려운 경우가 많음.",
-    "price": 14
-  },
-  {
-    "remark": "너 요즘 얼굴이 좋아 보이질 않네?",
-    "explanation": "건강 문제를 암시하며 기분을 상하게 할 수 있는 잔소리로 대체 가능성이 높음.",
-    "price": 13
-  },
-  {
-    "remark": "돈 관리는 제대로 하고 있니?",
-    "explanation": "재테크에 대한 간섭으로 부담감이 크며 자주 듣기 쉬운 잔소리.",
-    "price": 12
-  },
-  {
-    "remark": "너 저축은 하고 있어?",
-    "explanation": "사회적 기대와 개인의 재정적 스트레스를 증가시키며 회피하기 어려움.",
-    "price": 13
-  },
-  {
-    "remark": "집안은 좀 정리했니?",
-    "explanation": "부담스럽지만 반복 빈도가 낮으며 회피 난이도가 비교적 쉬움.",
-    "price": 10
-  },
-  {
-    "remark": "설거지는 너 혼자 해?",
-    "explanation": "가족 내 역할 분배와 관련된 스트레스를 줄 수 있는 잔소리로 반복될 가능성이 있음.",
-    "price": 11
-  }
+    {
+        "remark": "취업 준비는 잘되고 있니?",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "취업 준비는 확실히 진행했는지 점검해 보자는 취지의 질문입니다.",
+        "repetition": 15,
+        "mental_damage": 14,
+        "avoidance_difficulty": 16,
+        "replaceability": 18
+    },
+    {
+        "remark": "어떤 회사에 지원했어?",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "직업 선택에 대한 정보를 알고싶어하는 관심입니다.",
+        "repetition": 14,
+        "mental_damage": 15,
+        "avoidance_difficulty": 14,
+        "replaceability": 17
+    },
+    {
+        "remark": "그 회사는 안정적이니?",
+        "category": "명절 잔소리",
+        "suggested_price": 10,
+        "explanation": "지원한 회사의 안정성을 체크해보라고 권장하는 질문입니다.",
+        "repetition": 13,
+        "mental_damage": 13,
+        "avoidance_difficulty": 13,
+        "replaceability": 16
+    },
+    {
+        "remark": "직장 생활하기 괜찮아 보여?",
+        "category": "명절 잔소리",
+        "suggested_price": 9,
+        "explanation": "직업 만족도에 대한 탐구적인 관심입니다.",
+        "repetition": 12,
+        "mental_damage": 12,
+        "avoidance_difficulty": 12,
+        "replaceability": 15
+    },
+    {
+        "remark": "공무원 시험 준비 안 할 거야?",
+        "category": "명절 잔소리",
+        "suggested_price": 13,
+        "explanation": "안정적인 직업 선택을 확인하려는 의도입니다.",
+        "repetition": 16,
+        "mental_damage": 17,
+        "avoidance_difficulty": 18,
+        "replaceability": 19
+    },
+    {
+        "remark": "결혼은 언제쯤 하니?",
+        "category": "명절 잔소리",
+        "suggested_price": 14,
+        "explanation": "결혼 계획을 탐색하고 응원하기 위한 질문입니다.",
+        "repetition": 17,
+        "mental_damage": 18,
+        "avoidance_difficulty": 19,
+        "replaceability": 20
+    },
+    {
+        "remark": "좋은 사람 만날 기회는 있니?",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "새로운 만남의 기회를 추천하는 관심입니다.",
+        "repetition": 14,
+        "mental_damage": 15,
+        "avoidance_difficulty": 15,
+        "replaceability": 16
+    },
+    {
+        "remark": "결혼 정년기를 놓치고 있는 건 아니지?",
+        "category": "명절 잔소리",
+        "suggested_price": 15,
+        "explanation": "결혼 적정기를 고려하자는 취지입니다.",
+        "repetition": 19,
+        "mental_damage": 19,
+        "avoidance_difficulty": 20,
+        "replaceability": 20
+    },
+    {
+        "remark": "결혼 상대는 어떤 사람이었으면 좋겠니?",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "이상형에 대한 관심을 표명합니다.",
+        "repetition": 13,
+        "mental_damage": 13,
+        "avoidance_difficulty": 14,
+        "replaceability": 15
+    },
+    {
+        "remark": "최근에 소개팅은 했어?",
+        "category": "명절 잔소리",
+        "suggested_price": 10,
+        "explanation": "새로운 사람들과의 만남을 추천하는 맥락입니다.",
+        "repetition": 12,
+        "mental_damage": 12,
+        "avoidance_difficulty": 12,
+        "replaceability": 14
+    },
+    {
+        "remark": "아이 계획은 있는 거니?",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "가족의 확대 계획을 물어보는 관심입니다.",
+        "repetition": 15,
+        "mental_damage": 14,
+        "avoidance_difficulty": 15,
+        "replaceability": 18
+    },
+    {
+        "remark": "아이는 언제쯤 낳을 계획이야?",
+        "category": "명절 잔소리",
+        "suggested_price": 13,
+        "explanation": "출산 계획 결정을 격려하기 위함입니다.",
+        "repetition": 16,
+        "mental_damage": 16,
+        "avoidance_difficulty": 17,
+        "replaceability": 19
+    },
+    {
+        "remark": "자녀 교육은 어떻게 할 거니?",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "자녀 교육 방법에 대한 탐구입니다.",
+        "repetition": 14,
+        "mental_damage": 13,
+        "avoidance_difficulty": 14,
+        "replaceability": 17
+    },
+    {
+        "remark": "아이 키우는 게 쉽지 않았지?",
+        "category": "명절 잔소리",
+        "suggested_price": 10,
+        "explanation": "양육의 어려움을 이해하려는 의도입니다.",
+        "repetition": 12,
+        "mental_damage": 11,
+        "avoidance_difficulty": 12,
+        "replaceability": 15
+    },
+    {
+        "remark": "몇 명의 아이를 원해?",
+        "category": "명절 잔소리",
+        "suggested_price": 9,
+        "explanation": "가족 계획에 관한 대화를 유도합니다.",
+        "repetition": 11,
+        "mental_damage": 10,
+        "avoidance_difficulty": 12,
+        "replaceability": 14
+    },
+    {
+        "remark": "요즘 공부는 잘되니?",
+        "category": "명절 잔소리",
+        "suggested_price": 10,
+        "explanation": "학업 진척에 대한 관심 표현입니다.",
+        "repetition": 13,
+        "mental_damage": 11,
+        "avoidance_difficulty": 12,
+        "replaceability": 15
+    },
+    {
+        "remark": "학교 생활은 잘하고 있니?",
+        "category": "명절 잔소리",
+        "suggested_price": 9,
+        "explanation": "학교에서의 생활을 포함한 대화를 시작합니다.",
+        "repetition": 12,
+        "mental_damage": 10,
+        "avoidance_difficulty": 12,
+        "replaceability": 14
+    },
+    {
+        "remark": "좋은 성적 목표는 있는지?",
+        "category": "명절 잔소리",
+        "suggested_price": 8,
+        "explanation": "성취와 학업 계획을 동력으로 삼으려는 질문입니다.",
+        "repetition": 10,
+        "mental_damage": 9,
+        "avoidance_difficulty": 10,
+        "replaceability": 12
+    },
+    {
+        "remark": "학업과 다른 목표 사이의 균형은 어떻게 맞추니?",
+        "category": "명절 잔소리",
+        "suggested_price": 8,
+        "explanation": "다양한 분야에서의 성공을 응원합니다.",
+        "repetition": 10,
+        "mental_damage": 9,
+        "avoidance_difficulty": 10,
+        "replaceability": 12
+    },
+    {
+        "remark": "꼭 진학하고 싶은 분야가 걱정되니?",
+        "category": "명절 잔소리",
+        "suggested_price": 7,
+        "explanation": "전공 및 진로 선택을 고민하는 질문입니다.",
+        "repetition": 9,
+        "mental_damage": 8,
+        "avoidance_difficulty": 9,
+        "replaceability": 11
+    },
+    {
+        "remark": "건강관리 좀 잘 하고 있니?",
+        "category": "명절 잔소리",
+        "suggested_price": 10,
+        "explanation": "건강을 위한 생활 방식을 점검해보자는 의견입니다.",
+        "repetition": 12,
+        "mental_damage": 11,
+        "avoidance_difficulty": 13,
+        "replaceability": 14
+    },
+    {
+        "remark": "다이어트는 요즘도 하고 있니?",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "체중 관리와 관련된 대화를 유도합니다.",
+        "repetition": 14,
+        "mental_damage": 13,
+        "avoidance_difficulty": 14,
+        "replaceability": 15
+    },
+    {
+        "remark": "요즘 운동은 얼마나 하니?",
+        "category": "명절 잔소리",
+        "suggested_price": 9,
+        "explanation": "운동 습관 형성을 확인하려는 질문입니다.",
+        "repetition": 11,
+        "mental_damage": 10,
+        "avoidance_difficulty": 12,
+        "replaceability": 13
+    },
+    {
+        "remark": "음식 조절 좀 해봐야 하는 거 아니니?",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "식습관 개선을 권장하는 의견입니다.",
+        "repetition": 15,
+        "mental_damage": 14,
+        "avoidance_difficulty": 16,
+        "replaceability": 14
+    },
+    {
+        "remark": "얼굴이 피곤한데 잘 쉬고 있니?",
+        "category": "명절 잔소리",
+        "suggested_price": 8,
+        "explanation": "휴식의 중요성을 강조하는 메시지입니다.",
+        "repetition": 10,
+        "mental_damage": 9,
+        "avoidance_difficulty": 11,
+        "replaceability": 12
+    },
+    {
+        "remark": "돈 좀 절약해서 모아야 하지 않겠니?",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "절약과 재정 계획을 권장합니다.",
+        "repetition": 14,
+        "mental_damage": 12,
+        "avoidance_difficulty": 12,
+        "replaceability": 17
+    },
+    {
+        "remark": "저축은 얼마나 하고 있어?",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "저축 습관의 중요성을 강조합니다.",
+        "repetition": 15,
+        "mental_damage": 13,
+        "avoidance_difficulty": 13,
+        "replaceability": 18
+    },
+    {
+        "remark": "투자에 관심을 가져야 하지 않겠니?",
+        "category": "명절 잔소리",
+        "suggested_price": 10,
+        "explanation": "재테크의 필요성을 유도하는 질문입니다.",
+        "repetition": 13,
+        "mental_damage": 11,
+        "avoidance_difficulty": 12,
+        "replaceability": 14
+    },
+    {
+        "remark": "로또는 아마 답이 아닐 것 같아.",
+        "category": "명절 잔소리",
+        "suggested_price": 9,
+        "explanation": "재정적 안정성을 강조하는 의견입니다.",
+        "repetition": 11,
+        "mental_damage": 10,
+        "avoidance_difficulty": 12,
+        "replaceability": 13
+    },
+    {
+        "remark": "빚은 왜 만드는 거야?",
+        "category": "명절 잔소리",
+        "suggested_price": 13,
+        "explanation": "재정의 책임감을 촉구합니다.",
+        "repetition": 16,
+        "mental_damage": 15,
+        "avoidance_difficulty": 18,
+        "replaceability": 19
+    },
+    {
+        "remark": "집안일은 돕고 있니?",
+        "category": "명절 잔소리",
+        "suggested_price": 10,
+        "explanation": "가정 내 협력을 권하는 메시지입니다.",
+        "repetition": 12,
+        "mental_damage": 11,
+        "avoidance_difficulty": 13,
+        "replaceability": 14
+    },
+    {
+        "remark": "설거지는 언제 끝낼 거니?",
+        "category": "명절 잔소리",
+        "suggested_price": 9,
+        "explanation": "설거지 등의 노력 필요성을 언급합니다.",
+        "repetition": 11,
+        "mental_damage": 10,
+        "avoidance_difficulty": 12,
+        "replaceability": 14
+    },
+    {
+        "remark": "청소는 잘하고 있니?",
+        "category": "명절 잔소리",
+        "suggested_price": 8,
+        "explanation": "깨끗한 환경 유지의 중요성을 강조합니다.",
+        "repetition": 10,
+        "mental_damage": 8,
+        "avoidance_difficulty": 10,
+        "replaceability": 12
+    },
+    {
+        "remark": "요리는 누구 맡아서 할 거니?",
+        "category": "명절 잔소리",
+        "suggested_price": 8,
+        "explanation": "요리 역할 분담을 논의합니다.",
+        "repetition": 10,
+        "mental_damage": 9,
+        "avoidance_difficulty": 10,
+        "replaceability": 12
+    },
+    {
+        "remark": "가족끼리 협력하면 더욱 좋겠지?",
+        "category": "명절 잔소리",
+        "suggested_price": 7,
+        "explanation": "가정 내 유대로 인한 성장 가능성을 강조합니다.",
+        "repetition": 9,
+        "mental_damage": 7,
+        "avoidance_difficulty": 9,
+        "replaceability": 10
+    },
+    {
+        "remark": "아직 취직 안 했니? 인턴이라도 알아봐야지.",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "취업은 삶의 안정과 경제적 자립을 위한 중요한 분야이므로 적극적인 접근이 중요합니다.",
+        "repetition": 15,
+        "mental_damage": 14,
+        "avoidance_difficulty": 14,
+        "replaceability": 16
+    },
+    {
+        "remark": "요즘 공무원이 좋다더라. 준비는 해보고 있니?",
+        "category": "명절 잔소리",
+        "suggested_price": 13,
+        "explanation": "공무원 시험은 안정된 직업을 추구하려는 선택이 될 수 있습니다.",
+        "repetition": 14,
+        "mental_damage": 13,
+        "avoidance_difficulty": 13,
+        "replaceability": 16
+    },
+    {
+        "remark": "너 대학 때 무슨 과였더라? 그 전공으로 취업은 되니?",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "전공을 활용하여 자기계발과 취업 방향을 설계하는 것이 중요하다고 생각합니다.",
+        "repetition": 12,
+        "mental_damage": 13,
+        "avoidance_difficulty": 12,
+        "replaceability": 15
+    },
+    {
+        "remark": "너 친구들은 다 취업했다며? 너는 아직도 쉬니?",
+        "category": "명절 잔소리",
+        "suggested_price": 14,
+        "explanation": "취업을 통해 사회적 관계를 넓히며 자립을 이루는 것이 바람직합니다.",
+        "repetition": 16,
+        "mental_damage": 15,
+        "avoidance_difficulty": 14,
+        "replaceability": 17
+    },
+    {
+        "remark": "요즘 회사 좀 알아보고 있어? 도움이 필요하면 얘기해.",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "적극적으로 취업 정보를 수집하고 준비를 진행하는 것이 중요합니다.",
+        "repetition": 15,
+        "mental_damage": 12,
+        "avoidance_difficulty": 12,
+        "replaceability": 15
+    },
+    {
+        "remark": "언제 결혼할 거야? 빨리 좋은 사람 만나야지.",
+        "category": "명절 잔소리",
+        "suggested_price": 13,
+        "explanation": "가정을 이루는 것은 중요한 삶의 단계라고 할 수 있습니다.",
+        "repetition": 14,
+        "mental_damage": 14,
+        "avoidance_difficulty": 14,
+        "replaceability": 16
+    },
+    {
+        "remark": "연애는 하고 있니? 부모님께는 얘기했어?",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "이 시기가 사회적 관계를 넓히고 깊게 만들 좋은 기회일 수 있습니다.",
+        "repetition": 13,
+        "mental_damage": 12,
+        "avoidance_difficulty": 11,
+        "replaceability": 15
+    },
+    {
+        "remark": "지금 배우자 찾기 좋은 나이야, 적극적으로 노력해봐.",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "적극적으로 자기 확신과 계획을 가지고 만남을 추진하는 것이 중요합니다.",
+        "repetition": 15,
+        "mental_damage": 13,
+        "avoidance_difficulty": 12,
+        "replaceability": 14
+    },
+    {
+        "remark": "결혼하면 행복할 텐데, 아직 생각이 없니?",
+        "category": "명절 잔소리",
+        "suggested_price": 13,
+        "explanation": "인생의 중요한 단계로서 결혼을 신중히 고민해 보는 것이 필요합니다.",
+        "repetition": 14,
+        "mental_damage": 13,
+        "avoidance_difficulty": 13,
+        "replaceability": 15
+    },
+    {
+        "remark": "부모님께서 기대하고 계시니까, 좋은 소식 부탁해.",
+        "category": "명절 잔소리",
+        "suggested_price": 14,
+        "explanation": "가족과의 소통을 통해 서로의 기대를 이해하며 관계를 유지할 수 있습니다.",
+        "repetition": 13,
+        "mental_damage": 14,
+        "avoidance_difficulty": 14,
+        "replaceability": 16
+    },
+    {
+        "remark": "아이 계획은 있니? 부모님께선 손주 보고 싶어 하셔.",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "가족 구성원과 대화를 통해 결혼 후 계획을 정립하는 것이 바람직합니다.",
+        "repetition": 14,
+        "mental_damage": 13,
+        "avoidance_difficulty": 12,
+        "replaceability": 15
+    },
+    {
+        "remark": "너희 애 교육은 어떻게 하고 있어? 좋은 학교 알아봐야지.",
+        "category": "명절 잔소리",
+        "suggested_price": 13,
+        "explanation": "자녀의 교육은 중요한 미래 투자이므로 신중히 검토해야 합니다.",
+        "repetition": 13,
+        "mental_damage": 14,
+        "avoidance_difficulty": 14,
+        "replaceability": 16
+    },
+    {
+        "remark": "자녀 계획 없이 살면 나중에 외로웠을텐데.",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "자녀를 가지는 것은 관계의 확장과 새로운 삶의 길이 될 수 있습니다.",
+        "repetition": 12,
+        "mental_damage": 12,
+        "avoidance_difficulty": 13,
+        "replaceability": 15
+    },
+    {
+        "remark": "아이는 결혼 후 바로 가져야 젊어서 육아하기 쉽게 되는거야.",
+        "category": "명절 잔소리",
+        "suggested_price": 14,
+        "explanation": "자녀 계획은 결혼 생활의 중요한 요소이므로 적절한 타이밍으로 계획해야 합니다.",
+        "repetition": 15,
+        "mental_damage": 15,
+        "avoidance_difficulty": 14,
+        "replaceability": 17
+    },
+    {
+        "remark": "아이들은 어떻게 키울 계획이야?",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "신중하게 미래 계획을 수립하여 자녀 양육 방향을 결정하는 것이 중요합니다.",
+        "repetition": 13,
+        "mental_damage": 14,
+        "avoidance_difficulty": 13,
+        "replaceability": 14
+    },
+    {
+        "remark": "이번 학기는 성적 올릴 생각 있지? 공부 제대로 하고 있어?",
+        "category": "명절 잔소리",
+        "suggested_price": 13,
+        "explanation": "학업은 개인 역량을 더 높이기 위한 중요한 기회입니다.",
+        "repetition": 14,
+        "mental_damage": 13,
+        "avoidance_difficulty": 13,
+        "replaceability": 16
+    },
+    {
+        "remark": "그렇게 쉬기만 하면 공부는 언제 할 거야? 학원은 다니고 있니?",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "학원 수강은 성적 향상과 사회적 네트워크를 확장하는 방안이 될 수 있습니다.",
+        "repetition": 15,
+        "mental_damage": 13,
+        "avoidance_difficulty": 12,
+        "replaceability": 15
+    },
+    {
+        "remark": "그 과목 성적 신경 쓰여. 보충해서 올릴 계획이 있니?",
+        "category": "명절 잔소리",
+        "suggested_price": 13,
+        "explanation": "과목별로 학습 전략을 세워 효과적으로 학습하는 것이 필요합니다.",
+        "repetition": 14,
+        "mental_damage": 14,
+        "avoidance_difficulty": 13,
+        "replaceability": 16
+    },
+    {
+        "remark": "공부는 열심히 해야 모든 길이 열리는 거야.",
+        "category": "명절 잔소리",
+        "suggested_price": 14,
+        "explanation": "꾸준한 학업 노력은 미래의 성공을 위한 기반이 될 수 있습니다.",
+        "repetition": 16,
+        "mental_damage": 15,
+        "avoidance_difficulty": 14,
+        "replaceability": 17
+    },
+    {
+        "remark": "대학원 생각 있니? 요즘은 석박사가 기본이라던데.",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "높은 학위는 더 큰 전문성 역량을 제공할 수 있습니다.",
+        "repetition": 13,
+        "mental_damage": 12,
+        "avoidance_difficulty": 13,
+        "replaceability": 15
+    },
+    {
+        "remark": "살이 너무 찐 것 같은데 관리 좀 해야 되지 않겠니?",
+        "category": "명절 잔소리",
+        "suggested_price": 13,
+        "explanation": "건강한 신체는 삶의 질 향상에 긍정적인 영향을 줍니다.",
+        "repetition": 13,
+        "mental_damage": 14,
+        "avoidance_difficulty": 14,
+        "replaceability": 16
+    },
+    {
+        "remark": "요즘 춥다는데 옷 좀 따뜻하게 입고 다녀라.",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "계절 변화에 따른 옷차림은 건강 관리를 위한 중요 요소입니다.",
+        "repetition": 12,
+        "mental_damage": 12,
+        "avoidance_difficulty": 13,
+        "replaceability": 15
+    },
+    {
+        "remark": "너 피부가 안 좋아진 것 같아, 관리 해야겠어.",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "피부 관리와 생활 습관 개선을 통해 더 건강한 외모를 추구할 수 있습니다.",
+        "repetition": 13,
+        "mental_damage": 13,
+        "avoidance_difficulty": 12,
+        "replaceability": 15
+    },
+    {
+        "remark": "너는 자신감을 가지려면 더 멋있게 꾸며야 돼.",
+        "category": "명절 잔소리",
+        "suggested_price": 14,
+        "explanation": "외모에 대한 자신감을 갖고 적절히 꾸미는 것으로 긍정적 자기 이미지를 강화할 수 있습니다.",
+        "repetition": 15,
+        "mental_damage": 15,
+        "avoidance_difficulty": 14,
+        "replaceability": 17
+    },
+    {
+        "remark": "운동 좀 해보는 게 어때? 건강도 챙겨야지.",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "규칙적인 운동은 체력과 정신적 건강에 좋은 영향이 있습니다.",
+        "repetition": 14,
+        "mental_damage": 12,
+        "avoidance_difficulty": 12,
+        "replaceability": 15
+    },
+    {
+        "remark": "돈 좀 저축하고 있는거지? 미래를 위해 저축은 중요하다.",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "금융 관리와 저축은 장기적인 재정 건전성을 유지하는 데 유용합니다.",
+        "repetition": 14,
+        "mental_damage": 12,
+        "avoidance_difficulty": 12,
+        "replaceability": 15
+    },
+    {
+        "remark": "주식이나 펀드를 알아보고 투자 계획 세워보는 게 어때?",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "투자자는 장기적 관점에서 안정성과 높은 수익을 추구합니다.",
+        "repetition": 13,
+        "mental_damage": 12,
+        "avoidance_difficulty": 13,
+        "replaceability": 15
+    },
+    {
+        "remark": "요즘 스마트한 소비가 중요해, 너무 낭비하지 마.",
+        "category": "명절 잔소리",
+        "suggested_price": 13,
+        "explanation": "소비 습관을 관리해 보다 효과적인 금융 관리를 할 수 있습니다.",
+        "repetition": 13,
+        "mental_damage": 13,
+        "avoidance_difficulty": 13,
+        "replaceability": 16
+    },
+    {
+        "remark": "너는 연금 준비했니? 미래를 대비해야지.",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "연금 가입은 안전한 미래를 위한 중요한 금융 계획입니다.",
+        "repetition": 14,
+        "mental_damage": 12,
+        "avoidance_difficulty": 12,
+        "replaceability": 14
+    },
+    {
+        "remark": "돈은 아끼는 것도 중요하지만, 불리기도 잘해야 해.",
+        "category": "명절 잔소리",
+        "suggested_price": 14,
+        "explanation": "성공적인 경제 관리는 적절한 균형을 통해 이루어질 수 있습니다.",
+        "repetition": 15,
+        "mental_damage": 13,
+        "avoidance_difficulty": 14,
+        "replaceability": 17
+    },
+    {
+        "remark": "부엌일도 좀 도와야지. 명절 준비가 얼마나 힘든데요.",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "가사일 분담으로 가정 내 역할 균형을 유지하는 것이 중요합니다.",
+        "repetition": 14,
+        "mental_damage": 13,
+        "avoidance_difficulty": 12,
+        "replaceability": 15
+    },
+    {
+        "remark": "친척들 오는데 청소는 제대로 해놓고 있어야지.",
+        "category": "명절 잔소리",
+        "suggested_price": 13,
+        "explanation": "깨끗한 집 환경은 손님에게 좋은 인상을 주며 사교적 자산을 나태냅니다.",
+        "repetition": 13,
+        "mental_damage": 14,
+        "avoidance_difficulty": 13,
+        "replaceability": 14
+    },
+    {
+        "remark": "음식 준비는 잘 돼가니? 너무 늦으면 압박되니까.",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "명절 준비는 순조로움을 위한 계획과 관리가 필요합니다.",
+        "repetition": 12,
+        "mental_damage": 12,
+        "avoidance_difficulty": 11,
+        "replaceability": 15
+    },
+    {
+        "remark": "설거지 한 번 정도는 네가 챙겨봐라, 너무 힘들잖아.",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "작은 도움도 가정의 화목함과 이해를 높이는 데 유용합니다.",
+        "repetition": 14,
+        "mental_damage": 13,
+        "avoidance_difficulty": 12,
+        "replaceability": 14
+    },
+    {
+        "remark": "명절엔 집안일에 참여하는 것이 가족을 위한 배려입니다.",
+        "category": "명절 잔소리",
+        "suggested_price": 13,
+        "explanation": "공동 참여를 통해 더욱 강한 가정 내부 관계를 구축할 수 있습니다.",
+        "repetition": 14,
+        "mental_damage": 13,
+        "avoidance_difficulty": 13,
+        "replaceability": 16
+    },
+    {
+        "remark": "취업은 언제 할 건지 고민이라도 해봐라.",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "취업 관련 조언은 명절 대화의 흔한 요소로, 개인의 상황을 이해하려는 노력이 중요합니다.",
+        "repetition": 18,
+        "mental_damage": 15,
+        "avoidance_difficulty": 14,
+        "replaceability": 17
+    },
+    {
+        "remark": "공무원 시험 준비는 어떻게 되어가니?",
+        "category": "명절 잔소리",
+        "suggested_price": 13,
+        "explanation": "공무원 시험에 대한 언급은 의도와는 다르게 스트레스를 유발할 수 있습니다.",
+        "repetition": 15,
+        "mental_damage": 14,
+        "avoidance_difficulty": 13,
+        "replaceability": 18
+    },
+    {
+        "remark": "직장은 안정적인 곳으로 들어갔니?",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "안정성에 대한 걱정은 좋은 의도지만, 개인의 처지를 고려하는 것이 중요합니다.",
+        "repetition": 14,
+        "mental_damage": 13,
+        "avoidance_difficulty": 15,
+        "replaceability": 16
+    },
+    {
+        "remark": "이제 나이도 있겠다, 좀 취업 준비 열심히 해.",
+        "category": "명절 잔소리",
+        "suggested_price": 14,
+        "explanation": "나이에 대한 언급은 피할 수 있도록 노력하는 것이 대화의 원활함에 기여할 수 있습니다.",
+        "repetition": 17,
+        "mental_damage": 16,
+        "avoidance_difficulty": 15,
+        "replaceability": 20
+    },
+    {
+        "remark": "요즘 좋은 공고 많이 나오더라, 찾아 봤니?",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "취업 기회에 대한 정보 공유는 좋은 의도이나, 강요는 피해야 합니다.",
+        "repetition": 15,
+        "mental_damage": 12,
+        "avoidance_difficulty": 13,
+        "replaceability": 15
+    },
+    {
+        "remark": "언제 결혼할 계획이니?",
+        "category": "명절 잔소리",
+        "suggested_price": 13,
+        "explanation": "결혼은 개인의 선택으로, 재촉보다는 지지와 이해가 필요합니다.",
+        "repetition": 18,
+        "mental_damage": 16,
+        "avoidance_difficulty": 14,
+        "replaceability": 18
+    },
+    {
+        "remark": "좋은 사람 있으면 놓치지 말아라.",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "좋은 의도로 한 조언이지만, 맞추어진 대화가 중요합니다.",
+        "repetition": 16,
+        "mental_damage": 13,
+        "avoidance_difficulty": 12,
+        "replaceability": 14
+    },
+    {
+        "remark": "우리 집안에 좋은 선 자리 있는데 관심 있니?",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "결혼 관련 대화는 상대의 생각을 존중하면서 진행해야 합니다.",
+        "repetition": 17,
+        "mental_damage": 13,
+        "avoidance_difficulty": 15,
+        "replaceability": 15
+    },
+    {
+        "remark": "결혼은 한 번 해보는 게 인생 경험 아닌가?",
+        "category": "명절 잔소리",
+        "suggested_price": 14,
+        "explanation": "결혼에 대한 개인의 관점을 이해하는 것이 중요합니다.",
+        "repetition": 16,
+        "mental_damage": 15,
+        "avoidance_difficulty": 13,
+        "replaceability": 18
+    },
+    {
+        "remark": "나이 더 들기 전에 얼른 결혼해라.",
+        "category": "명절 잔소리",
+        "suggested_price": 15,
+        "explanation": "나이에 얽매인 대화는 지양하도록 합시다.",
+        "repetition": 19,
+        "mental_damage": 17,
+        "avoidance_difficulty": 16,
+        "replaceability": 19
+    },
+    {
+        "remark": "아이 계획은 잡았니?",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "자녀 계획은 민감한 사안으로, 배려 있는 대화가 중요합니다.",
+        "repetition": 15,
+        "mental_damage": 13,
+        "avoidance_difficulty": 14,
+        "replaceability": 15
+    },
+    {
+        "remark": "육아는 생각보다 쉽지 않아, 준비 잘 해라.",
+        "category": "명절 잔소리",
+        "suggested_price": 13,
+        "explanation": "조언은 유용하지만 수용 가능성을 고려하는 것이 좋습니다.",
+        "repetition": 14,
+        "mental_damage": 12,
+        "avoidance_difficulty": 13,
+        "replaceability": 16
+    },
+    {
+        "remark": "결혼했으면 이제 아이가 있어야지.",
+        "category": "명절 잔소리",
+        "suggested_price": 15,
+        "explanation": "아이에 대한 언급은 상대의 상황을 이해하려는 노력이 필요합니다.",
+        "repetition": 17,
+        "mental_damage": 17,
+        "avoidance_difficulty": 15,
+        "replaceability": 18
+    },
+    {
+        "remark": "많이 뛰어놀게 하는 것이 아이에게 좋아.",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "육아에 대한 조언이 타인의 선택을 제한하지 않도록 해야 합니다.",
+        "repetition": 13,
+        "mental_damage": 10,
+        "avoidance_difficulty": 12,
+        "replaceability": 14
+    },
+    {
+        "remark": "가정에서 인내와 노력이 중요해.",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "일반적인 조언은 상대를 존중하며 이루어져야 합니다.",
+        "repetition": 14,
+        "mental_damage": 11,
+        "avoidance_difficulty": 11,
+        "replaceability": 13
+    },
+    {
+        "remark": "시험 준비는 잘 되어가니?",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "시험에 대한 관심은 학생의 입장을 이해하려는 지지가 필요합니다.",
+        "repetition": 16,
+        "mental_damage": 12,
+        "avoidance_difficulty": 14,
+        "replaceability": 15
+    },
+    {
+        "remark": "다른 친구들은 요즘 어떻게 공부하니?",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "비교는 피하면서 개인의 노력을 격려합시다.",
+        "repetition": 14,
+        "mental_damage": 13,
+        "avoidance_difficulty": 13,
+        "replaceability": 14
+    },
+    {
+        "remark": "좋은 성적 받으려면 더 열심히 해야지.",
+        "category": "명절 잔소리",
+        "suggested_price": 13,
+        "explanation": "결과보다는 노력에 초점을 맞춘 격려가 중요합니다.",
+        "repetition": 15,
+        "mental_damage": 14,
+        "avoidance_difficulty": 13,
+        "replaceability": 16
+    },
+    {
+        "remark": "명문대 진학할 수 있도록 준비해야 될 거야.",
+        "category": "명절 잔소리",
+        "suggested_price": 14,
+        "explanation": "명문대에 대한 압박보다는 다양성을 인정하는 태도가 중요합니다.",
+        "repetition": 18,
+        "mental_damage": 16,
+        "avoidance_difficulty": 14,
+        "replaceability": 18
+    },
+    {
+        "remark": "공부가 전부는 아니지만 기본은 해야지.",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "공부에 대한 강조는 균형적인 관점을 제공해야 합니다.",
+        "repetition": 16,
+        "mental_damage": 12,
+        "avoidance_difficulty": 13,
+        "replaceability": 13
+    },
+    {
+        "remark": "살이 좀 쪘네, 건강 좀 챙겨라.",
+        "category": "명절 잔소리",
+        "suggested_price": 13,
+        "explanation": "외모에 대한 지적은 스트레스를 줄이기 위해 부드럽게 접근해야 합니다.",
+        "repetition": 17,
+        "mental_damage": 15,
+        "avoidance_difficulty": 14,
+        "replaceability": 16
+    },
+    {
+        "remark": "요즘 왜 이렇게 말랐니?",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "건강 상태에 대한 걱정은 조심스럽게 표현해야 합니다.",
+        "repetition": 15,
+        "mental_damage": 14,
+        "avoidance_difficulty": 11,
+        "replaceability": 15
+    },
+    {
+        "remark": "운동은 좀 하니?",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "운동에 대한 권유는 긍정적 예시로 접근할 수 있습니다.",
+        "repetition": 13,
+        "mental_damage": 12,
+        "avoidance_difficulty": 12,
+        "replaceability": 12
+    },
+    {
+        "remark": "요즘 피부가 좀 안 좋아 보인다.",
+        "category": "명절 잔소리",
+        "suggested_price": 14,
+        "explanation": "외모 관련 언급은 민감하므로 적절한 표현이 필요합니다.",
+        "repetition": 16,
+        "mental_damage": 14,
+        "avoidance_difficulty": 13,
+        "replaceability": 17
+    },
+    {
+        "remark": "건강검진은 했니?",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "건강 관리에 대한 조언은 긍정적으로 받아들일 수 있도록 표현해야 합니다.",
+        "repetition": 14,
+        "mental_damage": 11,
+        "avoidance_difficulty": 12,
+        "replaceability": 14
+    },
+    {
+        "remark": "돈은 잘 모으고 있니?",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "재테크에 대한 조언은 개인의 상황과 목표를 존중해야 합니다.",
+        "repetition": 14,
+        "mental_damage": 11,
+        "avoidance_difficulty": 13,
+        "replaceability": 14
+    },
+    {
+        "remark": "지출은 꼭 필요한 곳에만 해.",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "경제적 계획에 대한 격려는 긍정적인 방향으로 제시해야 합니다.",
+        "repetition": 13,
+        "mental_damage": 11,
+        "avoidance_difficulty": 12,
+        "replaceability": 13
+    },
+    {
+        "remark": "투자 같은 거는 관심 있니?",
+        "category": "명절 잔소리",
+        "suggested_price": 13,
+        "explanation": "재테크 관련 대화는 상대의 관심사와 정보를 고려해야 합니다.",
+        "repetition": 12,
+        "mental_damage": 13,
+        "avoidance_difficulty": 14,
+        "replaceability": 15
+    },
+    {
+        "remark": "지금이라도 적금이라도 들어 놓아라.",
+        "category": "명절 잔소리",
+        "suggested_price": 14,
+        "explanation": "저축에 대한 권고는 스트레스로 이어지지 않도록 부드럽게 접근합니다.",
+        "repetition": 15,
+        "mental_damage": 12,
+        "avoidance_difficulty": 13,
+        "replaceability": 16
+    },
+    {
+        "remark": "언제 집을 장만할 계획이니?",
+        "category": "명절 잔소리",
+        "suggested_price": 15,
+        "explanation": "재산 계획에 대한 대화는 개인의 선택을 존중해야 합니다.",
+        "repetition": 17,
+        "mental_damage": 16,
+        "avoidance_difficulty": 15,
+        "replaceability": 18
+    },
+    {
+        "remark": "명절 음식 준비는 다 했니?",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "가족의 참여와 분담을 강조하여 대화가 진행되면 좋습니다.",
+        "repetition": 14,
+        "mental_damage": 11,
+        "avoidance_difficulty": 12,
+        "replaceability": 12
+    },
+    {
+        "remark": "음식을 맛있게 만들려면 조금 더 배워야겠다.",
+        "category": "명절 잔소리",
+        "suggested_price": 13,
+        "explanation": "요리에 대한 언급은 상대방의 노력에 감사하며 표현해야 합니다.",
+        "repetition": 15,
+        "mental_damage": 13,
+        "avoidance_difficulty": 14,
+        "replaceability": 14
+    },
+    {
+        "remark": "청소는 네가 맡아야지?",
+        "category": "명절 잔소리",
+        "suggested_price": 14,
+        "explanation": "가사 분담에 대한 대화는 공평성과 협력을 강조해야 합니다.",
+        "repetition": 16,
+        "mental_damage": 14,
+        "avoidance_difficulty": 15,
+        "replaceability": 15
+    },
+    {
+        "remark": "명절에는 며느리가 알아서 해야지.",
+        "category": "명절 잔소리",
+        "suggested_price": 15,
+        "explanation": "역할에 대한 고정관념보다는 공감과 지원을 기반으로 대화하는 것이 중요합니다.",
+        "repetition": 18,
+        "mental_damage": 16,
+        "avoidance_difficulty": 17,
+        "replaceability": 18
+    },
+    {
+        "remark": "음식 남기지 말고 다 먹어야지.",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "음식에 대한 대화는 부드럽고 즐거운 분위기로 이루어져야 소비자가 긍정적으로 반응할 수 있습니다.",
+        "repetition": 12,
+        "mental_damage": 10,
+        "avoidance_difficulty": 13,
+        "replaceability": 13
+    },
+    {
+        "remark": "청소 좀 해",
+        "category": "일상 잔소리",
+        "suggested_price": 7,
+        "explanation": "일상에서 흔히 들을 수 있는 잔소리로, 어느 정도 스트레스를 유발하나 빈도와 대처 방법에 따라 달라질 수 있습니다.",
+        "repetition": 14,
+        "mental_damage": 10,
+        "avoidance_difficulty": 12,
+        "replaceability": 8,
+        "positive_feedback": 0,
+        "negative_feedback": 0
+    },
+    {
+        "remark": "어디 회사 들어갈 생각은 없는 거야?",
+        "category": "명절 잔소리",
+        "suggested_price": 8,
+        "explanation": "취업에 보다 적극적으로 나설 것을 권유하는 말입니다.",
+        "repetition": 15,
+        "mental_damage": 10,
+        "avoidance_difficulty": 12,
+        "replaceability": 18
+    },
+    {
+        "remark": "요즘 그 분야에 취업하기 어렵다는데 괜찮겠니?",
+        "category": "명절 잔소리",
+        "suggested_price": 7,
+        "explanation": "다른 진로를 고려하라는 조언일 수 있습니다.",
+        "repetition": 13,
+        "mental_damage": 8,
+        "avoidance_difficulty": 15,
+        "replaceability": 16
+    },
+    {
+        "remark": "네 또래 친구들은 다 취업했대.",
+        "category": "명절 잔소리",
+        "suggested_price": 10,
+        "explanation": "주변 또래들과의 비교를 통해 동기부여를 주고자 합니다.",
+        "repetition": 18,
+        "mental_damage": 14,
+        "avoidance_difficulty": 17,
+        "replaceability": 20
+    },
+    {
+        "remark": "지금이 지원 타이밍 아니야?",
+        "category": "명절 잔소리",
+        "suggested_price": 6,
+        "explanation": "현재 상황을 활용해 적극적으로 지원하라는 권유입니다.",
+        "repetition": 12,
+        "mental_damage": 9,
+        "avoidance_difficulty": 10,
+        "replaceability": 15
+    },
+    {
+        "remark": "아직 준비만 하고 있을 거야?",
+        "category": "명절 잔소리",
+        "suggested_price": 9,
+        "explanation": "취업 준비를 행동으로 옮길 것을 독려하는 말입니다.",
+        "repetition": 16,
+        "mental_damage": 11,
+        "avoidance_difficulty": 13,
+        "replaceability": 18
+    },
+    {
+        "remark": "결혼은 언제 하려고 해?",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "결혼 계획에 대한 관심과 질문을 표현하는 말입니다.",
+        "repetition": 19,
+        "mental_damage": 15,
+        "avoidance_difficulty": 14,
+        "replaceability": 20
+    },
+    {
+        "remark": "좋은 인연이 있다면 서둘러야지.",
+        "category": "명절 잔소리",
+        "suggested_price": 10,
+        "explanation": "적절한 시기에 결혼을 권유하고 있습니다.",
+        "repetition": 17,
+        "mental_damage": 13,
+        "avoidance_difficulty": 12,
+        "replaceability": 18
+    },
+    {
+        "remark": "여자(남자)친구는 있니?",
+        "category": "명절 잔소리",
+        "suggested_price": 9,
+        "explanation": "개인 연애 상황에 대한 가벼운 확인입니다.",
+        "repetition": 16,
+        "mental_damage": 9,
+        "avoidance_difficulty": 11,
+        "replaceability": 16
+    },
+    {
+        "remark": "네 또래 친구들은 다 결혼했대.",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "주변과의 결혼 시기 비교를 통해 간접 압력을 줍니다.",
+        "repetition": 18,
+        "mental_damage": 14,
+        "avoidance_difficulty": 15,
+        "replaceability": 20
+    },
+    {
+        "remark": "너희 부모님은 결혼 안 서두르시니?",
+        "category": "명절 잔소리",
+        "suggested_price": 10,
+        "explanation": "가족 의견도 반영해 결혼을 고려하라는 말입니다.",
+        "repetition": 15,
+        "mental_damage": 12,
+        "avoidance_difficulty": 12,
+        "replaceability": 18
+    },
+    {
+        "remark": "자녀는 언제 생각 중이니?",
+        "category": "명절 잔소리",
+        "suggested_price": 10,
+        "explanation": "다음 계획인 출산에 대한 관심을 나타냅니다.",
+        "repetition": 15,
+        "mental_damage": 12,
+        "avoidance_difficulty": 11,
+        "replaceability": 20
+    },
+    {
+        "remark": "아이 하나쯤 낳아야 안정되지 않겠니?",
+        "category": "명절 잔소리",
+        "suggested_price": 9,
+        "explanation": "아이를 통한 삶의 안정성을 강조하는 조언입니다.",
+        "repetition": 13,
+        "mental_damage": 11,
+        "avoidance_difficulty": 14,
+        "replaceability": 17
+    },
+    {
+        "remark": "결혼하면 애는 빨리 낳아야 해.",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "출산 적기에 대해 조언하는 표현입니다.",
+        "repetition": 14,
+        "mental_damage": 13,
+        "avoidance_difficulty": 13,
+        "replaceability": 19
+    },
+    {
+        "remark": "애들이 있어야 진정한 가정이지.",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "가족 구성의 중요성을 설득하는 말일 수 있습니다.",
+        "repetition": 17,
+        "mental_damage": 16,
+        "avoidance_difficulty": 14,
+        "replaceability": 20
+    },
+    {
+        "remark": "아이들 교육비 마련은 잘 하고 있니?",
+        "category": "명절 잔소리",
+        "suggested_price": 8,
+        "explanation": "자녀 교육에 대한 재정적인 대비를 권장합니다.",
+        "repetition": 12,
+        "mental_damage": 10,
+        "avoidance_difficulty": 10,
+        "replaceability": 18
+    },
+    {
+        "remark": "요즘 공부는 잘 되고 있니?",
+        "category": "명절 잔소리",
+        "suggested_price": 7,
+        "explanation": "학업 상황에 대한 관심 표현입니다.",
+        "repetition": 15,
+        "mental_damage": 9,
+        "avoidance_difficulty": 9,
+        "replaceability": 17
+    },
+    {
+        "remark": "좋은 대학 가야 취업도 잘 되지.",
+        "category": "명절 잔소리",
+        "suggested_price": 9,
+        "explanation": "적절한 진로 결정을 권유하는 말입니다.",
+        "repetition": 13,
+        "mental_damage": 11,
+        "avoidance_difficulty": 12,
+        "replaceability": 18
+    },
+    {
+        "remark": "성적은 많이 올랐니?",
+        "category": "명절 잔소리",
+        "suggested_price": 8,
+        "explanation": "현재 성적 상태에 대해 긍정적인 변화를 기대합니다.",
+        "repetition": 14,
+        "mental_damage": 10,
+        "avoidance_difficulty": 11,
+        "replaceability": 17
+    },
+    {
+        "remark": "요즘은 어학 공부도 중요하다더라.",
+        "category": "명절 잔소리",
+        "suggested_price": 7,
+        "explanation": "추가적인 학업 역량 강화를 추천합니다.",
+        "repetition": 12,
+        "mental_damage": 8,
+        "avoidance_difficulty": 10,
+        "replaceability": 16
+    },
+    {
+        "remark": "네 또래 애들은 다 학원 다닌대.",
+        "category": "명절 잔소리",
+        "suggested_price": 10,
+        "explanation": "또래와 비교를 통해 학업의 중요성을 강조합니다.",
+        "repetition": 16,
+        "mental_damage": 13,
+        "avoidance_difficulty": 14,
+        "replaceability": 19
+    },
+    {
+        "remark": "살 좀 빼야 건강하지 않겠니?",
+        "category": "명절 잔소리",
+        "suggested_price": 10,
+        "explanation": "건강을 위해 체중 관리를 권장합니다.",
+        "repetition": 18,
+        "mental_damage": 15,
+        "avoidance_difficulty": 14,
+        "replaceability": 20
+    },
+    {
+        "remark": "피부 관리는 잘 하고 있니?",
+        "category": "명절 잔소리",
+        "suggested_price": 8,
+        "explanation": "스스로 외모 관리에 신경 쓰기를 권유합니다.",
+        "repetition": 14,
+        "mental_damage": 11,
+        "avoidance_difficulty": 10,
+        "replaceability": 17
+    },
+    {
+        "remark": "운동 좀 해야 건강해져.",
+        "category": "명절 잔소리",
+        "suggested_price": 9,
+        "explanation": "규칙적인 운동을 통해 컨디션 개선을 독려합니다.",
+        "repetition": 15,
+        "mental_damage": 10,
+        "avoidance_difficulty": 11,
+        "replaceability": 18
+    },
+    {
+        "remark": "요즘은 다들 외모에 신경 쓰더라.",
+        "category": "명절 잔소리",
+        "suggested_price": 7,
+        "explanation": "현재 외모 트렌드에 관심을 갖도록 유도합니다.",
+        "repetition": 12,
+        "mental_damage": 9,
+        "avoidance_difficulty": 10,
+        "replaceability": 16
+    },
+    {
+        "remark": "밤에 야식 좀 줄여야지.",
+        "category": "명절 잔소리",
+        "suggested_price": 6,
+        "explanation": "건강을 위해 생활습관 개선을 제안합니다.",
+        "repetition": 13,
+        "mental_damage": 10,
+        "avoidance_difficulty": 9,
+        "replaceability": 15
+    },
+    {
+        "remark": "돈 관리는 어떻게 하고 있니?",
+        "category": "명절 잔소리",
+        "suggested_price": 9,
+        "explanation": "개인 재정 관리의 필요성을 강조합니다.",
+        "repetition": 14,
+        "mental_damage": 11,
+        "avoidance_difficulty": 12,
+        "replaceability": 18
+    },
+    {
+        "remark": "저축은 충분히 하고 있겠지?",
+        "category": "명절 잔소리",
+        "suggested_price": 8,
+        "explanation": "미래 대비를 위한 저축의 중요성을 언급합니다.",
+        "repetition": 13,
+        "mental_damage": 10,
+        "avoidance_difficulty": 11,
+        "replaceability": 17
+    },
+    {
+        "remark": "재테크 공부 좀 해봐.",
+        "category": "명절 잔소리",
+        "suggested_price": 7,
+        "explanation": "경제적 성장 범위를 넓히라는 조언입니다.",
+        "repetition": 12,
+        "mental_damage": 9,
+        "avoidance_difficulty": 10,
+        "replaceability": 16
+    },
+    {
+        "remark": "집은 언제 장만할 거냐?",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "꾸준한 자금 마련을 권장하는 말입니다.",
+        "repetition": 16,
+        "mental_damage": 13,
+        "avoidance_difficulty": 14,
+        "replaceability": 20
+    },
+    {
+        "remark": "내 투자 좀 따라해볼래?",
+        "category": "명절 잔소리",
+        "suggested_price": 6,
+        "explanation": "다양한 투자 기회를 고려하라는 제안입니다.",
+        "repetition": 10,
+        "mental_damage": 8,
+        "avoidance_difficulty": 9,
+        "replaceability": 15
+    },
+    {
+        "remark": "기름진 음식만 먹지 말아라.",
+        "category": "명절 잔소리",
+        "suggested_price": 7,
+        "explanation": "식단 개선을 유지하라는 권고입니다.",
+        "repetition": 12,
+        "mental_damage": 9,
+        "avoidance_difficulty": 9,
+        "replaceability": 17
+    },
+    {
+        "remark": "그리고 나중에 집안일은 어떻게 할 거냐?",
+        "category": "명절 잔소리",
+        "suggested_price": 9,
+        "explanation": "내 가사 분담의 중요성을 일깨우는 발언입니다.",
+        "repetition": 13,
+        "mental_damage": 11,
+        "avoidance_difficulty": 9,
+        "replaceability": 19
+    },
+    {
+        "remark": "주말에는 청소라도 좀 하니?",
+        "category": "명절 잔소리",
+        "suggested_price": 8,
+        "explanation": "집안 환경 정리를 권장하는 말입니다.",
+        "repetition": 11,
+        "mental_damage": 8,
+        "avoidance_difficulty": 12,
+        "replaceability": 18
+    },
+    {
+        "remark": "명절 음식 준비도 좀 도와라.",
+        "category": "명절 잔소리",
+        "suggested_price": 10,
+        "explanation": "공동 참여를 통해 가족 행사에 적극적으로 참여하라는 권유입니다.",
+        "repetition": 14,
+        "mental_damage": 12,
+        "avoidance_difficulty": 10,
+        "replaceability": 20
+    },
+    {
+        "remark": "한 번쯤 설거지는 네가 하면 어떨까?",
+        "category": "명절 잔소리",
+        "suggested_price": 7,
+        "explanation": "평등한 가사 분담을 지적합니다.",
+        "repetition": 12,
+        "mental_damage": 10,
+        "avoidance_difficulty": 11,
+        "replaceability": 18
+    },
+    {
+        "remark": "네 방은 언제 청소할 거냐?",
+        "category": "명절 잔소리",
+        "suggested_price": 6,
+        "explanation": "개인 공간의 위생 상태에 주의를 촉구합니다.",
+        "repetition": 13,
+        "mental_damage": 9,
+        "avoidance_difficulty": 8,
+        "replaceability": 15
+    },
+    {
+        "remark": "청소 좀 해",
+        "category": "일상 잔소리",
+        "suggested_price": 7,
+        "explanation": "생활 환경 개선을 위한 잔소리로 지속적 반복의 가능성이 높습니다.",
+        "repetition": 15,
+        "mental_damage": 10,
+        "avoidance_difficulty": 12,
+        "replaceability": 14,
+        "positive_feedback": 0,
+        "negative_feedback": 0
+    },
+    {
+        "remark": "결혼은 안하니?",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "결혼 문제는 개인의 선택과 상황을 반영하는 문제로 민감하며, 관련 질문은 부담을 줄 수 있음.",
+        "repetition": 18,
+        "mental_damage": 16,
+        "avoidance_difficulty": 14,
+        "replaceability": 10,
+        "positive_feedback": 0,
+        "negative_feedback": 0
+    },
+    {
+        "remark": "비오는데 우산 들고 가야지",
+        "category": "일상 잔소리",
+        "suggested_price": 7,
+        "explanation": "흔히 듣는 잔소리지만 실용적이고 크게 꺼려지지 않는 내용입니다.",
+        "repetition": 14,
+        "mental_damage": 6,
+        "avoidance_difficulty": 8,
+        "replaceability": 10,
+        "positive_feedback": 0,
+        "negative_feedback": 0
+    },
+    {
+        "remark": "내일은 일찍 나가는 게 좋을 것 같아.",
+        "category": "일상 잔소리",
+        "suggested_price": 5,
+        "explanation": "이 잔소리는 자극 받을 가능성이 낮으므로 가격이 낮습니다.",
+        "repetition": 12,
+        "mental_damage": 4,
+        "avoidance_difficulty": 6,
+        "replaceability": 10,
+        "positive_feedback": 0,
+        "negative_feedback": 0
+    },
+    {
+        "remark": "오늘은 비가 오니까 우산을 들고나가는게 좋을 것 같아",
+        "category": "일상 잔소리",
+        "suggested_price": 3,
+        "explanation": "우산을 가지고 나가라는 잔소리는 이치에 부합하며 유용하지만, 빈도와 정신적 데미지가 낮은 편입니다.",
+        "repetition": 10,
+        "mental_damage": 4,
+        "avoidance_difficulty": 7,
+        "replaceability": 5,
+        "positive_feedback": 0,
+        "negative_feedback": 0
+    },
+    {
+        "remark": "내일은 빨리 집에 가는게 좋겠어",
+        "category": "일상 잔소리",
+        "suggested_price": 3,
+        "explanation": "이 잔소리는 주기적으로 나타나는 경향이 있으나 대체로 회피 가능하며 큰 정신적 데미지는 동반되지 않는다.",
+        "repetition": 5,
+        "mental_damage": 3,
+        "avoidance_difficulty": 4,
+        "replaceability": 2,
+        "positive_feedback": 0,
+        "negative_feedback": 0
+    },
+    {
+        "remark": "지진이 일어날 예정이라고 했잖아!",
+        "category": "일상 잔소리",
+        "suggested_price": 7,
+        "explanation": "이 잔소리는 너무 자주 듣지 않아서 크게 신경 쓰지 않아도 될 수 있습니다.",
+        "repetition": 8,
+        "mental_damage": 12,
+        "avoidance_difficulty": 10,
+        "replaceability": 12,
+        "positive_feedback": 0,
+        "negative_feedback": 0
+    },
+    {
+        "remark": "아직 취업 안 한거야?",
+        "category": "명절 잔소리",
+        "suggested_price": 10,
+        "explanation": "삶의 큰 결정을 서두르지 말고, 이를 자신에게 맞게 준비하세요.",
+        "repetition": 18,
+        "mental_damage": 15,
+        "avoidance_difficulty": 14,
+        "replaceability": 17
+    },
+    {
+        "remark": "요즘 일자리가 많다던데, 너도 찾아봐.",
+        "category": "명절 잔소리",
+        "suggested_price": 7,
+        "explanation": "자신이 원하는 일자리를 찾는 과정은 지원과 이해가 필요합니다.",
+        "repetition": 16,
+        "mental_damage": 10,
+        "avoidance_difficulty": 12,
+        "replaceability": 14
+    },
+    {
+        "remark": "취업 준비는 제대로 하고 있니?",
+        "category": "명절 잔소리",
+        "suggested_price": 9,
+        "explanation": "준비하고 있는 단계에 맞는 격려와 지원을 기대하세요.",
+        "repetition": 17,
+        "mental_damage": 13,
+        "avoidance_difficulty": 13,
+        "replaceability": 15
+    },
+    {
+        "remark": "그래도 빨리 자리 잡아야 하지 않겠니?",
+        "category": "명절 잔소리",
+        "suggested_price": 8,
+        "explanation": "본인의 속도에 맞춰 진행하는 것이 가장 좋습니다.",
+        "repetition": 15,
+        "mental_damage": 12,
+        "avoidance_difficulty": 11,
+        "replaceability": 16
+    },
+    {
+        "remark": "너 이번에 취업 안 하면 어쩌려구 그래?",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "본인의 길을 찾는 과정에서 의사 결정을 존중받아야 합니다.",
+        "repetition": 14,
+        "mental_damage": 16,
+        "avoidance_difficulty": 14,
+        "replaceability": 18
+    },
+    {
+        "remark": "결혼은 언제쯤 할 계획이니?",
+        "category": "명절 잔소리",
+        "suggested_price": 9,
+        "explanation": "개인의 결정을 존중하며 기다리는 것이 중요합니다.",
+        "repetition": 17,
+        "mental_damage": 13,
+        "avoidance_difficulty": 15,
+        "replaceability": 16
+    },
+    {
+        "remark": "좋은 사람 못 만났어?",
+        "category": "명절 잔소리",
+        "suggested_price": 7,
+        "explanation": "사랑은 자연스러운 타이밍에 이루어집니다.",
+        "repetition": 15,
+        "mental_damage": 12,
+        "avoidance_difficulty": 11,
+        "replaceability": 15
+    },
+    {
+        "remark": "결혼 서두르지 않으면 늦어질 거야.",
+        "category": "명절 잔소리",
+        "suggested_price": 10,
+        "explanation": "본인 결정에 따라 중요한 일정을 세우는 것이 현명합니다.",
+        "repetition": 18,
+        "mental_damage": 14,
+        "avoidance_difficulty": 13,
+        "replaceability": 14
+    },
+    {
+        "remark": "친척 누구는 결혼했더라.",
+        "category": "명절 잔소리",
+        "suggested_price": 8,
+        "explanation": "다른 사람과의 비교는 그 사람만의 속도로 존중해야 합니다.",
+        "repetition": 16,
+        "mental_damage": 11,
+        "avoidance_difficulty": 12,
+        "replaceability": 15
+    },
+    {
+        "remark": "벌써 결혼할 나이가 됐는데, 생각은 있니?",
+        "category": "명절 잔소리",
+        "suggested_price": 9,
+        "explanation": "결혼은 인생의 중요한 순간이니 신중하게 계획하세요.",
+        "repetition": 17,
+        "mental_damage": 13,
+        "avoidance_difficulty": 14,
+        "replaceability": 17
+    },
+    {
+        "remark": "아이는 언제 가질거야?",
+        "category": "명절 잔소리",
+        "suggested_price": 9,
+        "explanation": "자녀 계획은 개인의 라이프스타일을 존중해야 합니다.",
+        "repetition": 15,
+        "mental_damage": 13,
+        "avoidance_difficulty": 15,
+        "replaceability": 16
+    },
+    {
+        "remark": "자녀 교육은 어떻게 계획하고 있어?",
+        "category": "명절 잔소리",
+        "suggested_price": 7,
+        "explanation": "자녀에 대한 결정은 부모의 신중한 판단에 달려 있습니다.",
+        "repetition": 13,
+        "mental_damage": 10,
+        "avoidance_difficulty": 14,
+        "replaceability": 15
+    },
+    {
+        "remark": "자녀는 아직인가 보네.",
+        "category": "명절 잔소리",
+        "suggested_price": 8,
+        "explanation": "부부 간의 합의와 결정을 존중해 주세요.",
+        "repetition": 14,
+        "mental_damage": 12,
+        "avoidance_difficulty": 11,
+        "replaceability": 16
+    },
+    {
+        "remark": "아이들이 왜 이렇게 키가 작은가?",
+        "category": "명절 잔소리",
+        "suggested_price": 10,
+        "explanation": "자녀는 모두 각자의 방식으로 성장하니 응원을 아끼지 마세요.",
+        "repetition": 16,
+        "mental_damage": 14,
+        "avoidance_difficulty": 14,
+        "replaceability": 17
+    },
+    {
+        "remark": "조부모님은 증손주를 보고 싶어하신다.",
+        "category": "명절 잔소리",
+        "suggested_price": 8,
+        "explanation": "세대 간의 바람이 서로 엇갈릴 수 있음을 이해해야 합니다.",
+        "repetition": 15,
+        "mental_damage": 11,
+        "avoidance_difficulty": 12,
+        "replaceability": 14
+    },
+    {
+        "remark": "공부 좀 더 열심히 해야 하지 않겠니?",
+        "category": "명절 잔소리",
+        "suggested_price": 9,
+        "explanation": "스스로의 페이스에 맞춰 학습하는 것이 중요합니다.",
+        "repetition": 18,
+        "mental_damage": 13,
+        "avoidance_difficulty": 14,
+        "replaceability": 15
+    },
+    {
+        "remark": "성적은 왜 이런거야?",
+        "category": "명절 잔소리",
+        "suggested_price": 12,
+        "explanation": "성적은 단 한 가지의 기준이 아니니 노력 자체를 칭찬하세요.",
+        "repetition": 20,
+        "mental_damage": 17,
+        "avoidance_difficulty": 12,
+        "replaceability": 16
+    },
+    {
+        "remark": "공부 비법 알려줄까?",
+        "category": "명절 잔소리",
+        "suggested_price": 6,
+        "explanation": "자신만의 방법에 맞게 조정할 수 있는 제안입니다.",
+        "repetition": 14,
+        "mental_damage": 9,
+        "avoidance_difficulty": 9,
+        "replaceability": 13
+    },
+    {
+        "remark": "친구 누구는 벌써 장학금이래.",
+        "category": "명절 잔소리",
+        "suggested_price": 10,
+        "explanation": "다른 사람과 비교하기보단 개인의 과정을 칭찬하세요.",
+        "repetition": 17,
+        "mental_damage": 14,
+        "avoidance_difficulty": 12,
+        "replaceability": 15
+    },
+    {
+        "remark": "시험 준비는 충분히 하고 있겠지?",
+        "category": "명절 잔소리",
+        "suggested_price": 8,
+        "explanation": "시험 준비 과정에서의 노력 자체를 인정해 주세요.",
+        "repetition": 16,
+        "mental_damage": 11,
+        "avoidance_difficulty": 14,
+        "replaceability": 14
+    },
+    {
+        "remark": "살이 많이 쪘네.",
+        "category": "명절 잔소리",
+        "suggested_price": 10,
+        "explanation": "자신감과 자기관리를 동시에 지원하세요.",
+        "repetition": 18,
+        "mental_damage": 15,
+        "avoidance_difficulty": 14,
+        "replaceability": 16
+    },
+    {
+        "remark": "좀 쉬고 운동도 해라.",
+        "category": "명절 잔소리",
+        "suggested_price": 8,
+        "explanation": "건강을 위한 격려는 과하지 않게 표현해야 합니다.",
+        "repetition": 15,
+        "mental_damage": 10,
+        "avoidance_difficulty": 12,
+        "replaceability": 14
+    },
+    {
+        "remark": "피부가 왜 이렇게 안 좋아?",
+        "category": "명절 잔소리",
+        "suggested_price": 9,
+        "explanation": "대화에 있어서 외모보단 건강에 대한 관심을 표현하세요.",
+        "repetition": 16,
+        "mental_damage": 13,
+        "avoidance_difficulty": 11,
+        "replaceability": 15
+    },
+    {
+        "remark": "옷 좀 신경 써서 입고 다녀라.",
+        "category": "명절 잔소리",
+        "suggested_price": 6,
+        "explanation": "각자의 스타일을 존중하면서도 조언은 기본으로 두세요.",
+        "repetition": 13,
+        "mental_damage": 9,
+        "avoidance_difficulty": 10,
+        "replaceability": 14
+    },
+    {
+        "remark": "머리를 좀 다듬고 와라.",
+        "category": "명절 잔소리",
+        "suggested_price": 7,
+        "explanation": "외모 관련 대화를 기본적인 존중으로 시작하세요.",
+        "repetition": 14,
+        "mental_damage": 10,
+        "avoidance_difficulty": 9,
+        "replaceability": 13
+    },
+    {
+        "remark": "돈은 잘 모으고 있니?",
+        "category": "명절 잔소리",
+        "suggested_price": 9,
+        "explanation": "자산 관리의 중요성을 건설적으로 조언하세요.",
+        "repetition": 16,
+        "mental_damage": 12,
+        "avoidance_difficulty": 13,
+        "replaceability": 14
+    },
+    {
+        "remark": "투자는 생각해 봤어?",
+        "category": "명절 잔소리",
+        "suggested_price": 7,
+        "explanation": "자산 증진 계획을 긍정적으로 지원하세요.",
+        "repetition": 15,
+        "mental_damage": 10,
+        "avoidance_difficulty": 12,
+        "replaceability": 13
+    },
+    {
+        "remark": "재테크는 이렇게 해야지.",
+        "category": "명절 잔소리",
+        "suggested_price": 8,
+        "explanation": "다양한 투자 방법에 대해 대화를 나누세요.",
+        "repetition": 14,
+        "mental_damage": 11,
+        "avoidance_difficulty": 14,
+        "replaceability": 14
+    },
+    {
+        "remark": "돈을 아무 데나 쓰는 건 아니지?",
+        "category": "명절 잔소리",
+        "suggested_price": 10,
+        "explanation": "소비습관 교정에 대한 피드백을 부드럽게 전달하세요.",
+        "repetition": 17,
+        "mental_damage": 14,
+        "avoidance_difficulty": 15,
+        "replaceability": 16
+    },
+    {
+        "remark": "친척 누구는 벌써 집 샀다더라.",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "각 자산 결정을 존중하며 조언하세요.",
+        "repetition": 18,
+        "mental_damage": 15,
+        "avoidance_difficulty": 16,
+        "replaceability": 17
+    },
+    {
+        "remark": "명절 상 차리는 건 당연히 같이 해야지.",
+        "category": "명절 잔소리",
+        "suggested_price": 9,
+        "explanation": "역할 분담은 상호 존중 속에서 이루어져야 합니다.",
+        "repetition": 16,
+        "mental_damage": 12,
+        "avoidance_difficulty": 14,
+        "replaceability": 15
+    },
+    {
+        "remark": "음식 쪽 준비는 모두 맡기겠네?",
+        "category": "명절 잔소리",
+        "suggested_price": 7,
+        "explanation": "가사일 분담은 가족 전체의 협력으로 이루어져야 합니다.",
+        "repetition": 14,
+        "mental_damage": 10,
+        "avoidance_difficulty": 11,
+        "replaceability": 14
+    },
+    {
+        "remark": "청소는 왜 이리 덜 된 거야?",
+        "category": "명절 잔소리",
+        "suggested_price": 8,
+        "explanation": "집안 상태를 지적함보다는 같이 도와주는 태도를 보이세요.",
+        "repetition": 15,
+        "mental_damage": 11,
+        "avoidance_difficulty": 12,
+        "replaceability": 13
+    },
+    {
+        "remark": "잔치 준비 어차피 네가 다 할 거지?",
+        "category": "명절 잔소리",
+        "suggested_price": 10,
+        "explanation": "준비 작업에 대한 지원 태도를 보여주세요.",
+        "repetition": 17,
+        "mental_damage": 14,
+        "avoidance_difficulty": 14,
+        "replaceability": 16
+    },
+    {
+        "remark": "가족들은 고생하는데 너는 좀 손 놓고 있네.",
+        "category": "명절 잔소리",
+        "suggested_price": 11,
+        "explanation": "가사노동의 참여는 자율적이어야 하며 강요는 지양합니다.",
+        "repetition": 18,
+        "mental_damage": 15,
+        "avoidance_difficulty": 15,
+        "replaceability": 15
+    },
+    {
+        "remark": "청소 좀 해",
+        "category": "일상 잔소리",
+        "suggested_price": 10,
+        "explanation": "청소에 대한 요구는 반복적이면서도 정리된 환경 조성에 필수적이라 점수가 높게 책정되었습니다.",
+        "repetition": 15,
+        "mental_damage": 12,
+        "avoidance_difficulty": 17,
+        "replaceability": 14,
+        "positive_feedback": 0,
+        "negative_feedback": 0
+    },
+    {
+        "remark": "청소 좀 해",
+        "category": "일상 잔소리",
+        "suggested_price": 8,
+        "explanation": "내부 정리 및 위생 유지에 관한 일상 잔소리입니다.",
+        "repetition": 15,
+        "mental_damage": 10,
+        "avoidance_difficulty": 12,
+        "replaceability": 8,
+        "positive_feedback": 0,
+        "negative_feedback": 0
+    },
+    {
+        "remark": "청소 좀 해",
+        "category": "일상 잔소리",
+        "suggested_price": 7,
+        "explanation": "청소 관련 잔소리는 반복적으로 들릴 가능성이 있으며, 정신적인 부담이 들 수 있으나 일반적으로 상대적으로 회피하거나 적응할 가능성이 있습니다.",
+        "repetition": 15,
+        "mental_damage": 13,
+        "avoidance_difficulty": 10,
+        "replaceability": 14,
+        "positive_feedback": 0,
+        "negative_feedback": 0
+    }
 ]

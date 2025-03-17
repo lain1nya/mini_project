@@ -1,12 +1,14 @@
-from typing import Literal, TypedDict, Dict, Annotated
 from dotenv import load_dotenv
+# from db import add_remarks_to_faiss
+from faiss_db import db, add_remarks_to_faiss, search_similar_remark, fetch_all_remarks_from_faiss
+from typing import Dict
+from models import PriceSuggestionRequest, SupervisorState
 import os
-import faiss
-import json
-import numpy as np
 from langgraph.graph import StateGraph
 from langchain.schema import SystemMessage, HumanMessage
 from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
+from langchain.output_parsers import PydanticOutputParser
+from langchain.prompts import ChatPromptTemplate
 
 load_dotenv()
 
@@ -21,7 +23,7 @@ AOAI_DEPLOY_EMBED_ADA=os.getenv("AOAI_DEPLOY_EMBED_ADA")
 
 llm = AzureChatOpenAI(
     openai_api_version="2024-10-21",
-    azure_deployment=AOAI_DEPLOY_GPT4O,  # 모델에 따라 적절히 선택
+    azure_deployment=AOAI_DEPLOY_GPT4O, # 모델에 따라 적절히 선택
     azure_endpoint=AOAI_ENDPOINT,
     api_key=AOAI_API_KEY
 )
@@ -33,17 +35,6 @@ embeddings = AzureOpenAIEmbeddings(
     azure_endpoint=AOAI_ENDPOINT,
     api_key=AOAI_API_KEY
 )
-
-index_path = "faiss_index"
-metadata_path = "remark_metadata.json"
-dim = 3072
-index = faiss.IndexFlatL2(dim)
-
-# Supervisor를 위한 상태 정의
-class SupervisorState(TypedDict):
-    remark: Annotated[str, "single"]
-    category: Literal["명절 잔소리", "일상 잔소리"]
-    price: int
 
 # categorizer
 def categorize_remark(state: SupervisorState) -> Dict[str, str]:
@@ -59,142 +50,169 @@ def categorize_remark(state: SupervisorState) -> Dict[str, str]:
     ]
     response = llm.invoke(messages)
     category = response.content.strip()
-    print(f"[Categorizer] 분류 결과: {category}")
 
     return {"category": category if category in ["명절 잔소리", "일상 잔소리"] else "일상 잔소리"}
 
-# searcher
 def search_similar_remarks(state: SupervisorState) -> Dict[str, str]:
     """FAISS를 사용하여 가장 유사한 잔소리를 검색하는 함수"""
     print(f"[Searcher] 잔소리 검색 시작: {state['remark']}")
 
-    if not os.path.exists(index_path) or not os.path.exists(metadata_path):
-        print("[Searcher] FAISS 인덱스 파일이 존재하지 않음. 기본값 반환.")
-        return {"similar_remark": ""}
-    
-    index = faiss.read_index(index_path)
-    with open(metadata_path, "r", encoding="utf-8") as f:
-        remark_metadata = json.load(f)
-    
-    query_embedding = embeddings.embed_query(state["remark"])
-    distances, indices = index.search(np.array([query_embedding]).astype("float32"), 1)
+    similar_results = search_similar_remark(state["remark"], state["category"])
 
-    similar_remark = remark_metadata[indices[0][0]]["remark"] if 0 <= indices[0][0] < len(remark_metadata) else ""
+    if similar_results :
+        metadata = similar_results.metadata  # 🔥 Document 객체의 metadata 가져오기
+        page_content = similar_results.page_content  # 🔥 Document 객체의 텍스트 가져오기
 
-    print(f"[Searcher] 검색된 유사 잔소리: {similar_remark}")
-    
-    return {"similar_remark": similar_remark}
+        print(f"[Searcher] 동일 카테고리 내 유사한 잔소리 발견: {metadata}")
+        print(f"similar_results: {page_content}")
 
-# estimator
+        return {"similar_remark": metadata}
+
+    # 🔥 비슷한 잔소리가 없을 경우 처리
+    print("[Searcher] 유사한 잔소리를 찾지 못함.")
+
+    if state["category"] == "명절 잔소리":
+        # 명절 잔소리는 새로 생성하고, 가격 예측 후 VectorDB에 추가
+        new_entry = estimate_remark_price(state)  # 🔥 LLM을 호출하여 새로운 잔소리 데이터 생성
+        print(f"[Searcher] 신규 명절 잔소리 추가됨: {new_entry}")
+
+    else:  # 일반 잔소리일 경우
+        # 🔥 명절 잔소리 기반으로 유사한 가격 찾기
+        if "repetition" not in state:
+            estimated_values = estimate_remark_price(state)
+            state.update({
+                "repetition": estimated_values["repetition"],
+                "mental_damage": estimated_values["mental_damage"],
+                "avoidance_difficulty": estimated_values["avoidance_difficulty"],
+                "replaceability": estimated_values["replaceability"],
+            })
+        
+        # 전체 잔소리 불러오기
+        remark_metadata = fetch_all_remarks_from_faiss()
+        # TODO: 왜 새로운 잔소리를 입력했을 때 오류 나는지 찾을 것
+        # TODO: 여기서 새로운 잔소리 입력했을 때 완료 되기 전에 추가되는 것 막기
+        # TODO: 계속 추가하지 않고 한 번만 추가하기
+        filtered_holiday_remarks = [r for r in remark_metadata if r["category"] == "명절 잔소리"]
+
+        if not filtered_holiday_remarks:
+            print("🚨 명절 잔소리가 존재하지 않음.")
+            similar_holiday_remark = None  # 기본값 설정
+        else:
+            similar_holiday_remark = min(
+                filtered_holiday_remarks,
+                key=lambda x: abs(x.get("repetition", 10) - state.get("repetition", 10)) +
+                    abs(x.get("mental_damage", 10) - state.get("mental_damage", 10)) +
+                    abs(x.get("avoidance_difficulty", 10) - state.get("avoidance_difficulty", 10)) +
+                    abs(x.get("replaceability", 10) - state.get("replaceability", 10)),
+            default=None
+        )
+
+
+    # 3️⃣ 명절 잔소리를 기반으로 새로운 일반 잔소리 생성
+    if similar_holiday_remark:
+        print(f"[Searcher] 유사한 명절 잔소리를 기반으로 일반 잔소리 생성: {similar_holiday_remark}")
+
+        new_entry = {
+            "remark": state["remark"],
+            "category": "일상 잔소리",
+            "suggested_price": similar_holiday_remark["suggested_price"],
+            "explanation": f"이 잔소리는 명절 잔소리 '{similar_holiday_remark['remark']}'와 유사한 맥락을 가집니다.",
+            "repetition": state["repetition"],
+            "mental_damage": state["mental_damage"],
+            "avoidance_difficulty": state["avoidance_difficulty"],
+            "replaceability": state["replaceability"],
+            "positive_feedback": 0,
+            "negative_feedback": 0,
+        }
+
+        add_remarks_to_faiss([new_entry])
+        return {"similar_remark" : new_entry}
+
+    return {"similar_remark": ""}
+
+
+structured_llm = llm.with_structured_output(PriceSuggestionRequest)
+
 def estimate_remark_price(state: SupervisorState) -> Dict[str, int]:
-    """잔소리 가격을 예측하는 함수 (유사한 잔소리의 가격을 참고하여 결정)"""
+    """잔소리 가격을 예측하는 함수 (새로운 잔소리를 생성하고 가격을 책정하여 반환)"""
     print(f"[Estimator] 가격 예측 시작: {state['remark']}")
 
-    if not os.path.exists(index_path) or not os.path.exists(metadata_path):
-        print("[Estimator] FAISS 인덱스 파일이 없음. 기본 가격 5만원 설정.")
-        return {"price": 5}
-    
-    messages = [
-        SystemMessage(content="""
-        너는 잔소리 가격 책정 AI야.
-        사용자가 입력한 잔소리에 대해 아래 기준을 예측해야 해.
-        
-        가격 책정 기준:
-        1. 반복 빈도 (1~20) - 자주 들을수록 높음
-        2. 정신적 데미지 (1~20) - 듣기 싫을수록 높음
-        3. 피할 수 있는 난이도 (1~20) - 회피 어려울수록 높음
-        4. 대체 가능성 (1~20) - 영원히 사라지지 않을수록 높음
-        
-        참고 사항
-        - 최저 가격은 1만원, 최대 가격은 15만원입니다.
-        - 각 기준별로 점수와 이유를 상세히 설명해주세요.
-        - 최종 가격은 각 기준의 점수를 종합적으로 고려하여 결정합니다.
+    try:
+        messages = [
+            SystemMessage(content="""
+            너는 잔소리 가격 책정 AI야.
+            사용자가 입력한 잔소리에 대해 아래 기준을 예측해야 해.
 
-        예시 분석
-        잔소리: "너 언제 결혼하니?"
-        
-        사고 과정:
-        1. 결혼 관련 잔소리는 특히 명절이나 가족 모임에서 자주 발생
-        2. 개인의 선택과 상황을 고려하지 않는 전형적인 잔소리
-        3. 결혼은 매우 개인적인 문제라 정신적 부담이 큼
-        
-        분석:
-        - 반복 빈도: 10점 (명절, 가족 모임마다 반복되는 단골 잔소리)
-        - 정신적 데미지: 9점 (개인의 상황과 무관하게 사회적 압박을 주는 발언)
-        - 피할 수 있는 난이도: 9점 (가족 모임을 피하기 어려움)
-        - 대체 가능성: 10점 (결혼할 때까지 계속되는 영원한 잔소리)
-                      
-        예시 출력:
-        - 최종 설명: 결혼 관련 잔소리는 개인의 선택을 존중하지 않고 지속적인 정신적 압박을 주는 대표적인 잔소리입니다.
-        - 최종 가격: 15만원
-        - 반복 빈도: 17
-        - 정신적 데미지: 15
-        - 피할 수 있는 난이도: 12
-        - 대체 가능성: 14
-        """),
-        HumanMessage(content=state["remark"])
-    ]
+            📌 가격 책정 기준:
+            1. 반복 빈도 (1~20) - 자주 들을수록 높음
+            2. 정신적 데미지 (1~20) - 듣기 싫을수록 높음
+            3. 피할 수 있는 난이도 (1~20) - 회피 어려울수록 높음
+            4. 대체 가능성 (1~20) - 영원히 사라지지 않을수록 높음
 
-    response = llm.invoke(messages)
-    extracted_values = response.content.strip().split("\n")
+            📌 출력 형식:
+            - `category`: 명절 잔소리 or 일상 잔소리
+            - `suggested_price`: 예측된 최종 가격 (만원 단위, 1~15만 원)
+            - `explanation`: 잔소리에 대한 AI의 최종 설명
+            - `repetition`: 반복 빈도 점수 (1~20)
+            - `mental_damage`: 정신적 데미지 점수 (1~20)
+            - `avoidance_difficulty`: 피할 수 있는 난이도 점수 (1~20)
+            - `replaceability`: 대체 가능성 점수 (1~20)
+            """),
+            HumanMessage(content=state["remark"])
+        ]
 
-    predicted_values = {
-        "repetition": int(extracted_values[0].split(": ")[1]),
-        "mental_damage": int(extracted_values[1].split(": ")[1]),
-        "avoidance_difficulty": int(extracted_values[2].split(": ")[1]),
-        "replaceability": int(extracted_values[3].split(": ")[1])
+        response: PriceSuggestionRequest = structured_llm.invoke(messages)
+
+    except Exception as e:
+        print(f"⚠️ LLM 응답 파싱 오류: {e}")
+        return {
+            "category": "일상 잔소리",
+            "suggested_price": 5,
+            "explanation": "기본 설명",
+            "repetition": 10,
+            "mental_damage": 10,
+            "avoidance_difficulty": 10,
+            "replaceability": 10
+        }
+
+    print(f"[Estimator] 예측된 가격 책정 기준: {response}")
+
+    # 🔥 새로운 잔소리를 VectorDB에 추가
+    new_entry = {
+        "remark": state["remark"],
+        "category": response.category,
+        "suggested_price": response.suggested_price,
+        "explanation": response.explanation,
+        "repetition": response.repetition,
+        "mental_damage": response.mental_damage,
+        "avoidance_difficulty": response.avoidance_difficulty,
+        "replaceability": response.replaceability,
+        "positive_feedback": 0,
+        "negative_feedback": 0,
     }
-    
-    print(f"[Estimator] 예측된 가격 책정 기준: {predicted_values}")
-    
-    index = faiss.read_index(index_path)
-    with open(metadata_path, "r", encoding="utf-8") as f:
-        remark_metadata = json.load(f)
-    
-    query_vector = np.array([
-        predicted_values["repetition"],
-        predicted_values["mental_damage"],
-        predicted_values["avoidance_difficulty"],
-        predicted_values["replaceability"]
-    ]).astype("float32").reshape(1, -1)
 
-    distance, indices = index.search(query_vector, 3)
+    add_remarks_to_faiss([new_entry])  # ✅ FAISS 및 메타데이터에 저장
 
-    similar_prices = [
-        remark_metadata[idx]["price"] for idx in indices[0] if 0 <= idx < len(remark_metadata)
-    ]
+    return new_entry
 
-    predicted_price = int(np.mean(similar_prices)) if similar_prices else 5
 
-    print(f"[Estimator] 예측된 잔소리 가격: {predicted_price}만원")
-
-    return {"price": predicted_price}
 
 graph = StateGraph(SupervisorState)
 graph.add_node("categorizer", categorize_remark)
 graph.add_node("searcher", search_similar_remarks)
 graph.add_node("estimator", estimate_remark_price)
 
-graph.add_edge("categorizer", "estimator")
+def route_search_edges(state: SupervisorState) -> str:
+    """Searcher에서 유사한 잔소리가 발견되었는지에 따라 흐름을 결정"""
+    if state.get("similar_remark"):  # 🔥 유사한 잔소리가 있다면 종료
+        print(f"🔥 [Supervisor] 유사한 잔소리 발견: {state['similar_remark']} → 검색 후 종료")
+        return "output"  # 🔥 더 이상 진행하지 않고 종료
+    return "estimator"  # 🔥 유사한 잔소리가 없으면 estimator 실행
+
 graph.add_edge("categorizer", "searcher")
+graph.add_conditional_edges("searcher", route_search_edges)
 graph.add_edge("searcher", "estimator")
 
-def route_edges(state: SupervisorState) -> str:
-    """categorizer에서 다음 노드를 결정"""
-    next_step = "estimator" if state["category"] == "명절 잔소리" else "searcher"
-    print(f"[Supervisor] Categorizer 결과: {state['category']} -> 다음 단계: {next_step}")
-    return next_step
-
-def route_search_edges(state: SupervisorState) -> str:
-    """searcher에서 다음 노드를 결정"""
-    next_step = "estimator" if state.get("similar_remark") else "output"
-    print(f"[Supervisor] Searcher 결과: {state.get('similar_remark')} -> 다음 단계: {next_step}")
-    return next_step
-
-graph.add_conditional_edges("categorizer", route_edges)
-graph.add_conditional_edges("searcher", route_search_edges)
 
 graph.set_entry_point("categorizer")
 supervisor_executor = graph.compile()
-
-# TODO: 카테고리 명절인지 아닌지도 구분해야 할까...?
