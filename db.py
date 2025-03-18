@@ -1,11 +1,10 @@
 import os
 import pprint
 from dotenv import load_dotenv
-from typing import List
 from models import MultiPriceSuggestionRequests
 from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
 from langchain.schema import SystemMessage
-from faiss_db import db, add_remarks_to_faiss
+from faiss_db import add_remarks_to_faiss
 
 # 환경 변수 로드
 load_dotenv()
@@ -38,7 +37,7 @@ def generate_holiday_remarks():
     try:
         message = [
             SystemMessage(content="""
-                아래 종류 별로 정확히 5개씩 "명절 잔소리 목록"을 JSON 형식으로 작성해주세요.
+                아래 종류 별로 정확히 '5개'씩 "명절 잔소리 목록"을 JSON 형식으로 작성해주세요.
                 카테고리별로 배열로 구분해서 변환하세요.
 
                 종류: 취업, 결혼, 자녀·출산, 학업, 외모·건강, 돈·재테크, 집안일

@@ -1,10 +1,9 @@
 from dotenv import load_dotenv
-# from db import add_remarks_to_faiss
-from faiss_db import db, add_remarks_to_faiss, search_similar_remark, fetch_all_remarks_from_faiss
-from typing import Dict
+from faiss_db import add_remarks_to_faiss, search_similar_remark, fetch_all_remarks_from_faiss
+from typing import Dict, Literal
 from models import PriceSuggestionRequest, SupervisorState
 import os
-from langgraph.graph import StateGraph
+from langgraph.graph import StateGraph, END
 from langchain.schema import SystemMessage, HumanMessage
 from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
 from langchain.output_parsers import PydanticOutputParser
@@ -53,31 +52,39 @@ def categorize_remark(state: SupervisorState) -> Dict[str, str]:
 
     return {"category": category if category in ["명절 잔소리", "일상 잔소리"] else "일상 잔소리"}
 
-def search_similar_remarks(state: SupervisorState) -> Dict[str, str]:
+# searcher
+def search_similar_remarks(state: SupervisorState) -> SupervisorState:
     """FAISS를 사용하여 가장 유사한 잔소리를 검색하는 함수"""
     print(f"[Searcher] 잔소리 검색 시작: {state['remark']}")
 
     similar_results = search_similar_remark(state["remark"], state["category"])
 
-    if similar_results :
+    # 명절 잔소리든 일반 잔소리든 비슷한게 있을 경우
+    if similar_results:
         metadata = similar_results.metadata  # 🔥 Document 객체의 metadata 가져오기
         page_content = similar_results.page_content  # 🔥 Document 객체의 텍스트 가져오기
 
         print(f"[Searcher] 동일 카테고리 내 유사한 잔소리 발견: {metadata}")
         print(f"similar_results: {page_content}")
 
-        return {"similar_remark": metadata}
+        state["similar_remark"] = True
+        state["category"] = metadata["category"]
+        state["suggested_price"] = metadata["suggested_price"]
+        state["explanation"] = metadata["explanation"]
+
+        return state
 
     # 🔥 비슷한 잔소리가 없을 경우 처리
     print("[Searcher] 유사한 잔소리를 찾지 못함.")
 
+    # 비슷한 명절 잔소리가 없을 경우 바로 생성하고 VectorDB에 추가
     if state["category"] == "명절 잔소리":
         # 명절 잔소리는 새로 생성하고, 가격 예측 후 VectorDB에 추가
         new_entry = estimate_remark_price(state)  # 🔥 LLM을 호출하여 새로운 잔소리 데이터 생성
         print(f"[Searcher] 신규 명절 잔소리 추가됨: {new_entry}")
 
-    else:  # 일반 잔소리일 경우
-        # 🔥 명절 잔소리 기반으로 유사한 가격 찾기
+    # 비슷한 일반 잔소리가 없을 경우, 명절 잔소리의 가격 책정 기준을 기반으로 유사한 가격 찾기
+    else:
         if "repetition" not in state:
             estimated_values = estimate_remark_price(state)
             state.update({
@@ -89,10 +96,7 @@ def search_similar_remarks(state: SupervisorState) -> Dict[str, str]:
         
         # 전체 잔소리 불러오기
         remark_metadata = fetch_all_remarks_from_faiss()
-        # TODO: 왜 새로운 잔소리를 입력했을 때 오류 나는지 찾을 것
-        # TODO: 여기서 새로운 잔소리 입력했을 때 완료 되기 전에 추가되는 것 막기
-        # TODO: 계속 추가하지 않고 한 번만 추가하기
-        filtered_holiday_remarks = [r for r in remark_metadata if r["category"] == "명절 잔소리"]
+        filtered_holiday_remarks = [r for r in remark_metadata if r and r.get("category") == "명절 잔소리"]
 
         if not filtered_holiday_remarks:
             print("🚨 명절 잔소리가 존재하지 않음.")
@@ -107,7 +111,6 @@ def search_similar_remarks(state: SupervisorState) -> Dict[str, str]:
             default=None
         )
 
-
     # 3️⃣ 명절 잔소리를 기반으로 새로운 일반 잔소리 생성
     if similar_holiday_remark:
         print(f"[Searcher] 유사한 명절 잔소리를 기반으로 일반 잔소리 생성: {similar_holiday_remark}")
@@ -115,8 +118,8 @@ def search_similar_remarks(state: SupervisorState) -> Dict[str, str]:
         new_entry = {
             "remark": state["remark"],
             "category": "일상 잔소리",
-            "suggested_price": similar_holiday_remark["suggested_price"],
-            "explanation": f"이 잔소리는 명절 잔소리 '{similar_holiday_remark['remark']}'와 유사한 맥락을 가집니다.",
+            "suggested_price": similar_holiday_remark["suggested_price"],            
+            "explanation": estimated_values["explanation"],
             "repetition": state["repetition"],
             "mental_damage": state["mental_damage"],
             "avoidance_difficulty": state["avoidance_difficulty"],
@@ -125,23 +128,31 @@ def search_similar_remarks(state: SupervisorState) -> Dict[str, str]:
             "negative_feedback": 0,
         }
 
+        print(new_entry)
+
         add_remarks_to_faiss([new_entry])
-        return {"similar_remark" : new_entry}
 
-    return {"similar_remark": ""}
+        state = new_entry
+
+        return state
+
+    return state
 
 
-structured_llm = llm.with_structured_output(PriceSuggestionRequest)
 
 def estimate_remark_price(state: SupervisorState) -> Dict[str, int]:
     """잔소리 가격을 예측하는 함수 (새로운 잔소리를 생성하고 가격을 책정하여 반환)"""
     print(f"[Estimator] 가격 예측 시작: {state['remark']}")
+    
+    structured_llm = llm.with_structured_output(PriceSuggestionRequest)
 
     try:
         messages = [
             SystemMessage(content="""
             너는 잔소리 가격 책정 AI야.
             사용자가 입력한 잔소리에 대해 아래 기준을 예측해야 해.
+            explanation은 최대한 설명을 1~2문장으로 적고, "가격을 책정했다"는 문구는 자제하는게 좋을 것 같아.
+            부드러운 말투를 사용해주는게 좋을 것 같아.
 
             📌 가격 책정 기준:
             1. 반복 빈도 (1~20) - 자주 들을수록 높음
@@ -177,7 +188,6 @@ def estimate_remark_price(state: SupervisorState) -> Dict[str, int]:
 
     print(f"[Estimator] 예측된 가격 책정 기준: {response}")
 
-    # 🔥 새로운 잔소리를 VectorDB에 추가
     new_entry = {
         "remark": state["remark"],
         "category": response.category,
@@ -190,11 +200,11 @@ def estimate_remark_price(state: SupervisorState) -> Dict[str, int]:
         "positive_feedback": 0,
         "negative_feedback": 0,
     }
-
-    add_remarks_to_faiss([new_entry])  # ✅ FAISS 및 메타데이터에 저장
+    if state["category"] == "명절 잔소리":
+        # 🔥 명절 잔소리 일 때만 vector db에 추가
+        add_remarks_to_faiss([new_entry])
 
     return new_entry
-
 
 
 graph = StateGraph(SupervisorState)
@@ -202,17 +212,17 @@ graph.add_node("categorizer", categorize_remark)
 graph.add_node("searcher", search_similar_remarks)
 graph.add_node("estimator", estimate_remark_price)
 
-def route_search_edges(state: SupervisorState) -> str:
+def route_search_edges(state: SupervisorState) -> Literal["estimator", "end"]:
     """Searcher에서 유사한 잔소리가 발견되었는지에 따라 흐름을 결정"""
     if state.get("similar_remark"):  # 🔥 유사한 잔소리가 있다면 종료
         print(f"🔥 [Supervisor] 유사한 잔소리 발견: {state['similar_remark']} → 검색 후 종료")
-        return "output"  # 🔥 더 이상 진행하지 않고 종료
+        return "end"  # 🔥 더 이상 진행하지 않고 종료
+    
     return "estimator"  # 🔥 유사한 잔소리가 없으면 estimator 실행
 
 graph.add_edge("categorizer", "searcher")
-graph.add_conditional_edges("searcher", route_search_edges)
-graph.add_edge("searcher", "estimator")
-
+graph.add_conditional_edges("searcher", route_search_edges, {"end" : END, "estimator": END})
+# graph.add_edge("estimator", END)
 
 graph.set_entry_point("categorizer")
 supervisor_executor = graph.compile()

@@ -4,10 +4,18 @@ from typing import List, Annotated, Literal, TypedDict
 class RemarkRequest(BaseModel):
     remark: str
 
+class Explanation(BaseModel):
+    explanation: str = Field(description="잔소리에 대한 AI의 최종 설명")
+
 class FeedbackRequest(BaseModel):
     remark: str
     category: str
     is_positive: bool
+
+class NewReasonRequest(BaseModel):
+    remark: str
+    reason: str
+    suggested_price: int
 
 # Supervisor를 위한 상태 정의
 class SupervisorState(TypedDict):
@@ -15,6 +23,7 @@ class SupervisorState(TypedDict):
     category: Literal["명절 잔소리", "일상 잔소리"]
     suggested_price: int
     explanation: str
+    similar_remark: bool
 
 class PriceSuggestionRequest(BaseModel):
     remark: str = Field(description="입력된 잔소리")

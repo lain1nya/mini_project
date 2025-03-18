@@ -1,5 +1,3 @@
-# faiss_db.py
-
 import os
 import json
 import pprint
