@@ -6,8 +6,7 @@ import os
 from langgraph.graph import StateGraph, END
 from langchain.schema import SystemMessage, HumanMessage
 from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
-from langchain.output_parsers import PydanticOutputParser
-from langchain.prompts import ChatPromptTemplate
+from prompt_description import SYSTEM_MESSAGES
 
 load_dotenv()
 
@@ -39,12 +38,7 @@ embeddings = AzureOpenAIEmbeddings(
 def categorize_remark(state: SupervisorState) -> Dict[str, str]:
     """잔소리를 '명절 잔소리' 또는 '일상 잔소리'로 분류하는 함수"""
     messages = [
-        SystemMessage(content="""
-        너는 잔소리 분석 AI야.
-        사용자가 입력한 잔소리가 '명절 잔소리'인지 '일상 잔소리'인지 판단해야 해.
-        '명절 잔소리'는 명절(설, 추석 등)과 관련된 것들이고, '일상 잔소리'는 평소에도 들을 수 있는 거야.
-        답변은 반드시 '명절 잔소리' 또는 '일상 잔소리' 중 하나만 반환해야 해.
-        """),
+        SystemMessage(content=SYSTEM_MESSAGES["categorize_script"]),
         HumanMessage(content=state["remark"])
     ]
     response = llm.invoke(messages)
@@ -146,29 +140,15 @@ def estimate_remark_price(state: SupervisorState) -> Dict[str, int]:
     
     structured_llm = llm.with_structured_output(PriceSuggestionRequest)
 
+    system_message = f"""
+        {SYSTEM_MESSAGES["nagging_script"]}
+
+        {SYSTEM_MESSAGES["explanation_script"]}
+    """
+
     try:
         messages = [
-            SystemMessage(content="""
-            너는 잔소리 가격 책정 AI야.
-            사용자가 입력한 잔소리에 대해 아래 기준을 예측해야 해.
-            explanation은 최대한 설명을 1~2문장으로 적고, "가격을 책정했다"는 문구는 자제하는게 좋을 것 같아.
-            부드러운 말투를 사용해주는게 좋을 것 같아.
-
-            📌 가격 책정 기준:
-            1. 반복 빈도 (1~20) - 자주 들을수록 높음
-            2. 정신적 데미지 (1~20) - 듣기 싫을수록 높음
-            3. 피할 수 있는 난이도 (1~20) - 회피 어려울수록 높음
-            4. 대체 가능성 (1~20) - 영원히 사라지지 않을수록 높음
-
-            📌 출력 형식:
-            - `category`: 명절 잔소리 or 일상 잔소리
-            - `suggested_price`: 예측된 최종 가격 (만원 단위, 1~15만 원)
-            - `explanation`: 잔소리에 대한 AI의 최종 설명
-            - `repetition`: 반복 빈도 점수 (1~20)
-            - `mental_damage`: 정신적 데미지 점수 (1~20)
-            - `avoidance_difficulty`: 피할 수 있는 난이도 점수 (1~20)
-            - `replaceability`: 대체 가능성 점수 (1~20)
-            """),
+            SystemMessage(content=system_message),
             HumanMessage(content=state["remark"])
         ]
 

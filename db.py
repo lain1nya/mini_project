@@ -5,6 +5,7 @@ from models import MultiPriceSuggestionRequests
 from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
 from langchain.schema import SystemMessage
 from faiss_db import add_remarks_to_faiss
+from prompt_description import SYSTEM_MESSAGES
 
 # 환경 변수 로드
 load_dotenv()
@@ -34,25 +35,15 @@ embeddings = AzureOpenAIEmbeddings(
 def generate_holiday_remarks():
     structured_llm = llm.with_structured_output(MultiPriceSuggestionRequests)
     
+    system_message = f"""
+        {SYSTEM_MESSAGES["original_script"]}
+
+        {SYSTEM_MESSAGES["explanation_script"]}
+    """
+
     try:
         message = [
-            SystemMessage(content="""
-                아래 종류 별로 정확히 '5개'씩 "명절 잔소리 목록"을 JSON 형식으로 작성해주세요.
-                카테고리별로 배열로 구분해서 변환하세요.
-
-                종류: 취업, 결혼, 자녀·출산, 학업, 외모·건강, 돈·재테크, 집안일
-                
-                가격 책정 기준:
-                1. 반복 빈도 (1~20) - 자주 들을수록 높음
-                2. 정신적 데미지 (1~20) - 듣기 싫을수록 높음
-                3. 피할 수 있는 난이도 (1~20) - 회피 어려울수록 높음
-                4. 대체 가능성 (1~20) - 영원히 사라지지 않을수록 높음
-                
-                가격은 1만원 단위로 책정하며, 1~15 사이로 설정해주세요.
-
-                "category" 필드는 반드시 "명절 잔소리"로 고정해야 합니다.
-                "explanation" 필드는 권유형으로 작성해주세요.
-            """)
+            SystemMessage(content=system_message)
         ]
 
         # 응답 생성 및 파싱

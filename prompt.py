@@ -1,13 +1,11 @@
 from fastapi import FastAPI
 from nagging_graph import llm, supervisor_executor
-from models import RemarkRequest, FeedbackRequest, NewReasonRequest, PriceAnalysisOutput, PriceSuggestionRequest
+from models import RemarkRequest, FeedbackRequest, NewReasonRequest, PriceSuggestionRequest
 from fastapi.middleware.cors import CORSMiddleware
 from langchain.schema import SystemMessage, HumanMessage
-from langchain.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field
 from faiss_db import replace_remark_in_faiss, search_similar_remark, add_remarks_to_faiss
-
-output_parser = PydanticOutputParser(pydantic_object=PriceAnalysisOutput)
+from prompt_description import SYSTEM_MESSAGES
 
 # FastAPI 앱 생성
 app = FastAPI()
@@ -32,41 +30,26 @@ def generate_new_suggestion_prompt(base_explanation: str, positive_count: int, n
         fixed_price: int = Field(description="피드백을 반영한 가격")
 
     structured_llm = llm.with_structured_output(ExplanationResponse)
+
+    system_message = f"""
+        {SYSTEM_MESSAGES["feedback_script"]}
+
+        {SYSTEM_MESSAGES["explanation_script"]}
+    """
+
+    human_message = SYSTEM_MESSAGES["feedback_human_script"].format(
+                base_explanation = base_explanation,
+                positive_count = positive_count,
+                negative_count = negative_count,
+                original_price = original_price,
+                suggested_price = suggested_price,
+                reason = reason
+            )
+
     try :
         messages = [
-            SystemMessage(content="""
-                다음은 잔소리에 대한 기본 설명입니다:
-                "{base_explanation}"
-
-                이 잔소리에 대한 피드백 현황:
-                - 긍정적 평가: {positive_count}회
-                - 부정적 평가: {negative_count}회
-
-                현재 상황:
-                - 기존 가격: {original_price}만원
-                - 제안된 가격: {suggested_price}만원
-                - 가격 제안 이유: {reason}
-
-                위 정보를 바탕으로 잔소리에 대한 새로운 설명과 가격을 생성해주세요.
-                설명의 경우 기본 설명의 본질은 유지하면서, 사용자들의 피드백을 자연스럽게 반영해주세요.
-                가격 제안과 비용에 대한 이유는 설명에 포함하지 않고, 설명은 한 문장으로 작성해주세요.
-                가격의 경우 긍정적 평가의 횟수와 부정적 평가의 횟수, 기존 가격과, 제안된 가격과 이유를 모두 고려하여 적정한 가격을 책정해주세요.
-                가격의 숫자는 1 ~ 15 사이로만 리턴해주세요.
-            """), 
-            HumanMessage(content=f"""
-                새로운 잔소리 설명과 가격을 생성해주세요.
-                
-                - 기존 설명: "{base_explanation}"
-                - 긍정적 평가 횟수: {positive_count}
-                - 부정적 평가 횟수: {negative_count}
-                - 기존 가격: {original_price}만원
-                - 제안된 가격: {suggested_price}만원
-                - 가격 제안 이유: "{reason}"
-
-                새로운 설명은 기본 설명의 의미를 유지하면서도, 사용자의 피드백을 자연스럽게 반영해주세요.
-                모든 한국 사람의 공감을 살 수 있을만한 설명이어야 합니다.
-                설명은 한 문장으로 작성되며, 가격은 1~15만원 범위에서 적절하게 책정해주세요.
-            """)
+            SystemMessage(content=system_message),
+            HumanMessage(content=human_message)
         ]
 
         response: ExplanationResponse = structured_llm.invoke(messages)
@@ -102,7 +85,7 @@ async def get_price(request: RemarkRequest):
 async def handle_feedback(request: FeedbackRequest):
     """FAISS에서 유사한 잔소리를 찾고, 존재하면 대체하고 없으면 추가"""
 
-    # 🔍 remark_store에서 해당 잔소리 정보 가져오기
+    # remark_store에서 해당 잔소리 정보 가져오기
     remark_data = remark_store.get(request.remark)
 
     if not remark_data:
@@ -110,10 +93,10 @@ async def handle_feedback(request: FeedbackRequest):
 
     print("🔍 Stored remark result:", remark_data)
 
-    # 🔥 category 필드에 안전하게 접근
+    # category 필드에 안전하게 접근
     category = remark_data["category"]
 
-    # 🔍 1️⃣ FAISS에서 유사한 remark 검색 (카테고리 필터링 가능)
+    # FAISS에서 유사한 remark 검색 (카테고리 필터링 가능)
     similar_results = search_similar_remark(request.remark, category)  # 🔥 같은 카테고리 내에서 검색
 
     print(similar_results)
@@ -124,7 +107,7 @@ async def handle_feedback(request: FeedbackRequest):
 
         print(f"🔍 기존 remark 발견: {page_content} ({metadata})")
 
-        # 🔥 2️⃣ 기존 remark의 피드백 업데이트
+        # 기존 remark의 피드백 업데이트
         if request.is_positive:
             metadata["positive_feedback"] = metadata.get("positive_feedback", 0) + 1
         else:
@@ -133,7 +116,7 @@ async def handle_feedback(request: FeedbackRequest):
         print(f"✅ 업데이트된 피드백: {metadata}")
         remark_store[request.remark] = metadata
 
-        # 🔥 3️⃣ 기존 remark를 새로운 remark로 대체
+        # 기존 remark를 새로운 remark로 대체
         replace_remark_in_faiss(original_remark=page_content, new_remark=request.remark, updated_metadata=metadata)
 
         return {
@@ -142,7 +125,7 @@ async def handle_feedback(request: FeedbackRequest):
             "updated_remark": metadata
         }
     
-    # 🔥 4️⃣ 유사한 remark가 없으면 새로운 remark 추가
+    # 유사한 remark가 없으면 새로운 remark 추가
     print("[Searcher] 유사한 잔소리를 찾지 못함. 새로운 remark 추가.")
     new_entry = {
         "remark": request.remark,
@@ -186,15 +169,9 @@ async def suggest_price(request: NewReasonRequest):
     positive_feedback = result.get("positive_feedback", 0)
     negative_feedback = result.get("negative_feedback", 0)
     
-    # 가중치를 적용한 가격 계산
-    weight_existing = positive_feedback / (positive_feedback + negative_feedback)
-    weight_new = negative_feedback / (positive_feedback + negative_feedback)
-    final_price = int(result["suggested_price"] * weight_existing + request.suggested_price * weight_new)
-    
     # 기존 설명에서 핵심 내용 추출
     base_explanation = result['explanation']
-    
-    print(f"최종 가격: {final_price}")
+
     print(f"핵심 내용: {base_explanation}")
 
     # explanation, fixed_price 리턴
