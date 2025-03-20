@@ -1,11 +1,15 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from nagging_graph import llm, supervisor_executor
-from models import RemarkRequest, FeedbackRequest, NewReasonRequest, PriceSuggestionRequest
+from models import RemarkRequest, FeedbackRequest, NewReasonRequest, PriceSuggestionRequest, NaggingListResponse
 from fastapi.middleware.cors import CORSMiddleware
 from langchain.schema import SystemMessage, HumanMessage
 from pydantic import BaseModel, Field
 from faiss_db import replace_remark_in_faiss, search_similar_remark, add_remarks_to_faiss
 from prompt_description import SYSTEM_MESSAGES
+from collections import OrderedDict
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from nagging_graph import getNaggingList
 
 # FastAPI 앱 생성
 app = FastAPI()
@@ -66,12 +70,14 @@ async def get_price(request: RemarkRequest):
     print(f"입력된 잔소리: {request.remark}")
     state = {
         "remark": request.remark,
+        "tone": "",
         "category": "",
         "suggested_price": 0,
         "explanation": "",
     }
      
     result = supervisor_executor.invoke(state)
+    print(f"result : {result}")
 
     remark_store[request.remark] = result
 
@@ -93,11 +99,9 @@ async def handle_feedback(request: FeedbackRequest):
 
     print("🔍 Stored remark result:", remark_data)
 
-    # category 필드에 안전하게 접근
-    category = remark_data["category"]
 
     # FAISS에서 유사한 remark 검색 (카테고리 필터링 가능)
-    similar_results = search_similar_remark(request.remark, category)  # 🔥 같은 카테고리 내에서 검색
+    similar_results = search_similar_remark(request.remark, remark_data["tone"], remark_data["category"])  # 🔥 같은 카테고리 내에서 검색
 
     print(similar_results)
 
@@ -154,9 +158,8 @@ async def suggest_price(request: NewReasonRequest):
     print(f"가격 제안 받음: {request}")
 
     original = remark_store.get(request.remark)
-    
     # 기존 데이터 검색
-    similar_results = search_similar_remark(request.remark, original["category"], top_k=1)
+    similar_results = search_similar_remark(request.remark, original["tone"], original["category"], top_k=1)
 
     if not similar_results:
         return {"status": "error", "message": "가격을 제안할 잔소리를 찾을 수 없습니다."}
@@ -188,3 +191,19 @@ async def suggest_price(request: NewReasonRequest):
     print(f"업데이트 된 데이터: {result}")
 
     replace_remark_in_faiss(request.remark, result["remark"], result)
+
+@app.post("/make_receipt/")
+async def make_receipt(request: NaggingListResponse):
+    if not request.nagging_list:
+        raise HTTPException(status_code=400, detail="잔소리 리스트가 비어 있습니다.")
+
+    print(request.nagging_list)
+
+    final_receipt = getNaggingList(request)
+    
+
+    return {
+        "status": "success",
+        "message": "영수증이 성공적으로 생성되었습니다.",
+        "receipt": final_receipt
+    }

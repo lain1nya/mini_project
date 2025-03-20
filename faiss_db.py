@@ -10,7 +10,6 @@ load_dotenv()
 
 # FAISS 인덱스 & 메타데이터 파일 경로
 index_path = "faiss_index"
-# index_file = os.path.join(index_path, "index.faiss")
 metadata_path = "remark_metadata.json"
 
 # Azure OpenAI 임베딩 모델 설정
@@ -65,11 +64,13 @@ def add_remarks_to_faiss(remarks):
     # 메타데이터 업데이트
     metadata.extend(remarks)
 
-    texts = [remark["remark"] for remark in remarks]  # remark 텍스트 리스트
+    texts = [f"{remark['remark']} (tone: {remark['tone']})" for remark in remarks]
     
     metadata_list = [
         {
             "remark": remark["remark"],
+            "updated_remark": remark["updated_remark"],
+            "tone" : remark["tone"],
             "category": remark["category"],
             "explanation": remark["explanation"],
             "suggested_price": remark["suggested_price"],
@@ -92,19 +93,20 @@ def add_remarks_to_faiss(remarks):
     print(f"✅ {len(remarks)}개의 remark가 FAISS에 추가되었습니다!")
 
 # FAISS에서 유사한 잔소리 검색
-def search_similar_remark(query: str, category: str, top_k: int=1):
+def search_similar_remark(query: str, tone: str, category: str, top_k: int=1):
     if db is None:
         print("❌ FAISS DB가 비어 있습니다. 먼저 데이터를 추가하세요.")
         return None
 
     # 검색 수행
-    docs = db.similarity_search(query, top_k)
+    query_with_tone = f"{query} (tone: {tone})"
+    docs = db.similarity_search(query_with_tone, top_k)
 
     if not docs:
         print("❌ 유사한 잔소리를 찾을 수 없습니다.")
         return None
     
-    filtered_docs = [doc for doc in docs if doc.metadata.get("category") == category]
+    filtered_docs = [doc for doc in docs if doc.metadata and doc.metadata.get("category") == category]
 
     if not filtered_docs:
         print(f"⚠️ 같은 카테고리({category})에서 유사한 잔소리를 찾을 수 없습니다.")
