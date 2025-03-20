@@ -39,6 +39,8 @@ def generate_holiday_remarks():
         {SYSTEM_MESSAGES["original_script"]}
 
         {SYSTEM_MESSAGES["explanation_script"]}
+
+        {SYSTEM_MESSAGES["updated_remark_script"]}
     """
 
     try:

@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 from faiss_db import add_remarks_to_faiss, search_similar_remark, fetch_all_remarks_from_faiss
 from typing import Dict, Literal
-from models import PriceSuggestionRequest, SupervisorState
+from models import PriceSuggestionRequest, SupervisorState, UpdatedRemarkRequest
 import os
 from langgraph.graph import StateGraph, END
 from langchain.schema import SystemMessage, HumanMessage
@@ -34,12 +34,27 @@ embeddings = AzureOpenAIEmbeddings(
     api_key=AOAI_API_KEY
 )
 
+def focus_remark(state: SupervisorState) -> Dict[str, str]:
+    """사용자가 말하고자 하는 의도를 정확하게 파악하는 함수"""
+    structured_llm = llm.with_structured_output(UpdatedRemarkRequest)
+
+    messages = [
+        SystemMessage(content=SYSTEM_MESSAGES["updated_remark_script"]),
+        HumanMessage(content=state["remark"])
+    ]
+    response = structured_llm.invoke(messages)
+    print(response)
+
+    state["updated_remark"] = response.updated_remark
+
+    return {"remark" : response.remark, "updated_remark" : response.updated_remark}
+
 # categorizer
 def categorize_remark(state: SupervisorState) -> Dict[str, str]:
     """잔소리를 '명절 잔소리' 또는 '일상 잔소리'로 분류하는 함수"""
     messages = [
         SystemMessage(content=SYSTEM_MESSAGES["categorize_script"]),
-        HumanMessage(content=state["remark"])
+        HumanMessage(content=state["updated_remark"])
     ]
     response = llm.invoke(messages)
     category = response.content.strip()
@@ -98,21 +113,21 @@ def search_similar_remarks(state: SupervisorState) -> SupervisorState:
         else:
             similar_holiday_remark = min(
                 filtered_holiday_remarks,
-                key=lambda x: abs(x.get("repetition", 10) - state.get("repetition", 10)) +
-                    abs(x.get("mental_damage", 10) - state.get("mental_damage", 10)) +
-                    abs(x.get("avoidance_difficulty", 10) - state.get("avoidance_difficulty", 10)) +
-                    abs(x.get("replaceability", 10) - state.get("replaceability", 10)),
+                key=lambda x: abs(x.get("repetition", 10) - state.get("repetition", 1)) +
+                    abs(x.get("mental_damage", 10) - state.get("mental_damage", 1)) +
+                    abs(x.get("avoidance_difficulty", 10) - state.get("avoidance_difficulty", 1)) +
+                    abs(x.get("replaceability", 10) - state.get("replaceability", 1)),
             default=None
-        )
-
+        )  
     # 3️⃣ 명절 잔소리를 기반으로 새로운 일반 잔소리 생성
     if similar_holiday_remark:
-        print(f"[Searcher] 유사한 명절 잔소리를 기반으로 일반 잔소리 생성: {similar_holiday_remark}")
+        print(f"[Searcher] 유사한 명절 잔소리:  {similar_holiday_remark}")
 
         new_entry = {
             "remark": state["remark"],
+            "updated_remark" : state["remark"],
             "category": "일상 잔소리",
-            "suggested_price": similar_holiday_remark["suggested_price"],            
+            "suggested_price": str(round(int(similar_holiday_remark["suggested_price"]) / 3)),            
             "explanation": estimated_values["explanation"],
             "repetition": state["repetition"],
             "mental_damage": state["mental_damage"],
@@ -144,12 +159,15 @@ def estimate_remark_price(state: SupervisorState) -> Dict[str, int]:
         {SYSTEM_MESSAGES["nagging_script"]}
 
         {SYSTEM_MESSAGES["explanation_script"]}
+
+        {SYSTEM_MESSAGES["updated_remark_script"]}
     """
 
     try:
         messages = [
             SystemMessage(content=system_message),
-            HumanMessage(content=state["remark"])
+            HumanMessage(content=state["updated_remark"]),
+            HumanMessage(content=state["category"])
         ]
 
         response: PriceSuggestionRequest = structured_llm.invoke(messages)
@@ -158,7 +176,7 @@ def estimate_remark_price(state: SupervisorState) -> Dict[str, int]:
         print(f"⚠️ LLM 응답 파싱 오류: {e}")
         return {
             "category": "일상 잔소리",
-            "suggested_price": 5,
+            "suggested_price": 1,
             "explanation": "기본 설명",
             "repetition": 10,
             "mental_damage": 10,
@@ -170,6 +188,7 @@ def estimate_remark_price(state: SupervisorState) -> Dict[str, int]:
 
     new_entry = {
         "remark": state["remark"],
+        "updated_remark" : state["updated_remark"],
         "category": response.category,
         "suggested_price": response.suggested_price,
         "explanation": response.explanation,
@@ -188,6 +207,7 @@ def estimate_remark_price(state: SupervisorState) -> Dict[str, int]:
 
 
 graph = StateGraph(SupervisorState)
+graph.add_node("focus", focus_remark)
 graph.add_node("categorizer", categorize_remark)
 graph.add_node("searcher", search_similar_remarks)
 graph.add_node("estimator", estimate_remark_price)
@@ -200,9 +220,10 @@ def route_search_edges(state: SupervisorState) -> Literal["estimator", "end"]:
     
     return "estimator"  # 🔥 유사한 잔소리가 없으면 estimator 실행
 
+graph.add_edge("focus", "categorizer")
 graph.add_edge("categorizer", "searcher")
 graph.add_conditional_edges("searcher", route_search_edges, {"end" : END, "estimator": END})
 # graph.add_edge("estimator", END)
 
-graph.set_entry_point("categorizer")
+graph.set_entry_point("focus")
 supervisor_executor = graph.compile()

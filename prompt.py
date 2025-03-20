@@ -130,7 +130,7 @@ async def handle_feedback(request: FeedbackRequest):
     new_entry = {
         "remark": request.remark,
         "category": "일상 잔소리",  # 🔥 기본값 (명절 잔소리일 수도 있음, 필요 시 변경)
-        "suggested_price": 10,  # 🔥 기본값 (LLM을 활용해 결정 가능)
+        "suggested_price": 5,  # 🔥 기본값 (LLM을 활용해 결정 가능)
         "explanation": "이 잔소리는 새로운 항목으로 추가되었습니다.",
         "repetition": 10,
         "mental_damage": 10,
@@ -174,10 +174,11 @@ async def suggest_price(request: NewReasonRequest):
 
     print(f"핵심 내용: {base_explanation}")
 
+    updated_price = 5 if original["category"] == "일반 잔소리" and request.suggested_price > 5 else request.suggested_price
     # explanation, fixed_price 리턴
     new_explanation_and_price = generate_new_suggestion_prompt(
         base_explanation, positive_feedback, negative_feedback,
-        original["suggested_price"], request.suggested_price, request.reason if request.reason != "" else "이유 없음")
+        original["suggested_price"], updated_price, request.reason if request.reason != "" else "이유 없음")
 
     print(f"새로 바꾼 설명: {new_explanation_and_price}")
     
